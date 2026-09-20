@@ -38,6 +38,11 @@ The user also needs the appropriate Intune RBAC role and licensing. The helper c
 
 The optional Live Response library publisher uses the Defender API permission `Library.Manage`. It publishes the script only. Running the script against a device remains a separate Live Response action and requires the appropriate MDE device permissions and device-group remediation level.
 
+The publisher calls `https://api.security.microsoft.com`, but requests the token
+with the legacy Defender resource audience `https://api.securitycenter.microsoft.com`.
+The API currently rejects the non-`api` resource name and may return `403` for a
+token whose audience is the REST endpoint instead of the legacy resource.
+
 ## Authentication boundaries
 
 Tokens are acquired at runtime and are not stored in this repository. Do not place client secrets, passwords, access tokens, SAS URLs, or personal data in AZD environment values or generated scripts.

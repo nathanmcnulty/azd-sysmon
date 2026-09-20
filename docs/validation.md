@@ -47,8 +47,10 @@ that remediation executes despite that readback. The publisher retains the
 documented POST payload. Verify endpoint execution rather than interpreting
 this beta response field alone.
 
-The Azure VM extension/Run Command and Defender Live Response publication paths
-have local contract and failure checks, but were not deployed in this pilot.
+The Azure VM extension/Run Command and final Defender Live Response publication
+paths were not deployed in this pilot. A reversible live-response authentication
+probe did list the tenant library with the legacy Defender resource audience;
+the publisher's upload/delete behavior remains covered by local contract tests.
 No Defender timeline behavior is inferred from successful Sentinel ingestion.
 The client was already running AMA before the new Intune application was
 prepared; this pilot alone cannot establish a clean-device AMA installation.

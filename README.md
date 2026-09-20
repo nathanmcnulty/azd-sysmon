@@ -80,7 +80,7 @@ azd env set AZD_SYSMON_MDE_ACCOUNT <administrator-upn>
 azd up
 ```
 
-The publisher obtains a normal cached Azure CLI token for the Defender API and requires `Library.Manage`. Publishing does not automatically run the script on a device; run it from a Live Response session with a configuration key from `config/generated-package-manifest.json`.
+The publisher obtains a normal cached Azure CLI token for the Defender API and requires `Library.Manage`. The REST endpoint is `https://api.security.microsoft.com`; token acquisition uses the Defender API's legacy resource audience `https://api.securitycenter.microsoft.com`. Publishing does not automatically run the script on a device; run it from a Live Response session with a configuration key from `config/generated-package-manifest.json`.
 
 ### Azure VMs
 

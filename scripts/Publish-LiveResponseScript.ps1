@@ -30,7 +30,9 @@ if ([string]$account.tenantId -ine $ExpectedTenantId -or [string]$account.user -
     throw "Azure CLI is signed into '$($account.user)' in tenant '$($account.tenantId)', not the explicitly selected MDE account and tenant."
 }
 
-$token = (& az account get-access-token --resource 'https://securitycenter.microsoft.com' --tenant $ExpectedTenantId --query accessToken --output tsv --only-show-errors).Trim()
+# The Defender API endpoint is api.security.microsoft.com, but the current API
+# still expects the token audience for its legacy resource registration.
+$token = (& az account get-access-token --resource 'https://api.securitycenter.microsoft.com' --tenant $ExpectedTenantId --query accessToken --output tsv --only-show-errors).Trim()
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($token)) {
     throw 'Azure CLI could not obtain a Defender for Endpoint token. Use standard az login/browser authentication and ensure the signed-in identity has Library.Manage.'
 }
