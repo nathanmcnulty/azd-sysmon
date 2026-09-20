@@ -1,0 +1,37 @@
+{
+  "template": "azd-sysmon",
+  "configurationSource": "olaf-sysmon-modular-release",
+  "defaultConfiguration": "balanced",
+  "configurationKeys": [
+    "balanced",
+    "filedelete",
+    "excludes-only",
+    "mde-augmented"
+  ],
+  "configRelease": "configs-082cba578667",
+  "configurationFiles": {
+    "balanced": {
+      "fileName": "sysmonconfig.xml",
+      "sha256": "f115aac5770dae468e5cfb48c58a8b6e37588208a31f1b746812c534577a244b"
+    },
+    "filedelete": {
+      "fileName": "sysmonconfig-with-filedelete.xml",
+      "sha256": "92b1239486c0ea8ab4b71ec0298ae89d5e814751337cef0b25b3e3eccf96c050"
+    },
+    "excludes-only": {
+      "fileName": "sysmonconfig-excludes-only.xml",
+      "sha256": "bae0a6b67ffaa1a92683f663043b66f22cfb9ce74e3496838d2ea992baf00ece"
+    },
+    "mde-augmented": {
+      "fileName": "sysmonconfig-mde-augment.xml",
+      "sha256": "8c3fecd93b875c82817aceebb713c4cd3392077212a06606f7f27301d2626813"
+    }
+  },
+  "configBundleSha256": "c72b02ca6b326d32dfe279daa25f574d2b0d3041a075ac07023ab5353d5d3562",
+  "generatedFiles": {
+    ".\\deploy\\intune\\Detect-Sysmon.ps1": "91b6cfe6539ee58f9cf153430f1eda6258ac2ad052a512826caacf989767715d",
+    ".\\deploy\\intune\\Remediate-Sysmon.ps1": "bbe648a7ab9cfc8f3d96c5caf49eac7619eb73320e32e82261ccf4cb8c4d081f",
+    ".\\deploy\\live-response\\Install-Sysmon.ps1": "bbe648a7ab9cfc8f3d96c5caf49eac7619eb73320e32e82261ccf4cb8c4d081f",
+    ".\\deploy\\azure-vm\\Install-Sysmon.ps1": "bbe648a7ab9cfc8f3d96c5caf49eac7619eb73320e32e82261ccf4cb8c4d081f"
+  }
+}

@@ -1,0 +1,3 @@
+* text=auto eol=lf
+scripts/vendor/Azd.GraphAuthentication/Azd.GraphAuthentication.psd1 text eol=lf
+scripts/vendor/Azd.GraphAuthentication/Azd.GraphAuthentication.psm1 text eol=lf

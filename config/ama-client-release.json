@@ -1,0 +1,10 @@
+{
+  "product": "Azure Monitor Agent",
+  "release": "1.44.0.0",
+  "fileName": "AzureMonitorAgentClientSetup.msi",
+  "downloadUri": "https://download.microsoft.com/download/6b9fa5ca-06b0-45c4-af72-fa39e87247b4/AzureMonitorAgentClientSetup.msi",
+  "sha256": "a93a6f55f8179be097184630e999d537eae2b8098da9c00101ba1bf9a9d55927",
+  "productCode": "{C4F6939C-A3A2-4556-AEB6-889F720A8AB8}",
+  "publisher": "Microsoft Corporation",
+  "signerSubjectPattern": "^CN=Microsoft Corporation, O=Microsoft Corporation,"
+}

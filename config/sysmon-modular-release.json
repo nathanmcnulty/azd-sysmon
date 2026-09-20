@@ -1,0 +1,32 @@
+{
+  "repository": "https://github.com/olafhartong/sysmon-modular",
+  "releaseTag": "configs-082cba578667",
+  "commit": "082cba578667a5f57b44a8e64bc02548d2338859",
+  "published": "2026-09-18T08:03:00Z",
+  "configurationAssets": {
+    "balanced": {
+      "fileName": "sysmonconfig.xml",
+      "sourceCommit": "082cba578667a5f57b44a8e64bc02548d2338859",
+      "sourceUrl": "https://github.com/olafhartong/sysmon-modular/releases/download/configs-082cba578667/sysmonconfig.xml",
+      "sha256": "f115aac5770dae468e5cfb48c58a8b6e37588208a31f1b746812c534577a244b"
+    },
+    "filedelete": {
+      "fileName": "sysmonconfig-with-filedelete.xml",
+      "sourceCommit": "082cba578667a5f57b44a8e64bc02548d2338859",
+      "sourceUrl": "https://github.com/olafhartong/sysmon-modular/releases/download/configs-082cba578667/sysmonconfig-with-filedelete.xml",
+      "sha256": "92b1239486c0ea8ab4b71ec0298ae89d5e814751337cef0b25b3e3eccf96c050"
+    },
+    "excludes-only": {
+      "fileName": "sysmonconfig-excludes-only.xml",
+      "sourceCommit": "082cba578667a5f57b44a8e64bc02548d2338859",
+      "sourceUrl": "https://github.com/olafhartong/sysmon-modular/releases/download/configs-082cba578667/sysmonconfig-excludes-only.xml",
+      "sha256": "bae0a6b67ffaa1a92683f663043b66f22cfb9ce74e3496838d2ea992baf00ece"
+    },
+    "mde-augmented": {
+      "fileName": "sysmonconfig-mde-augment.xml",
+      "sourceCommit": "34b8db3e7e06ad45eb4c4b13da67b333eabe8343",
+      "sourceUrl": "https://raw.githubusercontent.com/olafhartong/sysmon-modular/34b8db3e7e06ad45eb4c4b13da67b333eabe8343/sysmonconfig-mde-augment.xml",
+      "sha256": "8c3fecd93b875c82817aceebb713c4cd3392077212a06606f7f27301d2626813"
+    }
+  }
+}

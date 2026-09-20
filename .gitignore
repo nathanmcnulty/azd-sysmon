@@ -1,0 +1,6 @@
+.azure/
+.artifacts/
+TestResults*.xml
+testResults.xml
+infra/main.json
+*.zip

@@ -1,0 +1,29 @@
+name: Validate
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install test dependencies
+        run: |
+          Install-Module Pester -RequiredVersion 5.7.1 -Force -Scope CurrentUser
+          az bicep install --version v0.46.1
+          if ($LASTEXITCODE -ne 0) { throw 'Bicep installation failed.' }
+      - name: Validate
+        run: ./scripts/Test-Repository.ps1
+      - name: Verify reproducible offline package
+        run: |
+          ./scripts/Build-SysmonPackages.ps1
+          git diff --exit-code
+          if ($LASTEXITCODE -ne 0) { throw 'Package rebuild changed tracked content.' }
