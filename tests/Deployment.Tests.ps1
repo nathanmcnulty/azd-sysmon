@@ -273,6 +273,25 @@ Describe 'MDE library publishing boundaries' {
         Should -Invoke az -Times 1 -Exactly
     }
 
+    It 'requests the legacy Defender resource audience for the live response API' {
+        Mock az {
+            $global:LASTEXITCODE = 0
+            if ($Arguments -contains 'show') { return '{"tenantId":"22222222-2222-4222-8222-222222222222","user":"admin@example.com"}' }
+            return 'token'
+        }
+        $handler = [AzdSysmonTest.FixedResponseHandler]::new()
+        $handler.Body = '{"value":[]}'
+        $client = [System.Net.Http.HttpClient]::new($handler)
+        try {
+            { & $entry -ScriptPath $scriptPath -ExpectedTenantId '22222222-2222-4222-8222-222222222222' -ExpectedAccount 'admin@example.com' -HttpClient $client } | Should -Not -Throw
+            (Get-Content -LiteralPath $entry -Raw) | Should -Match "get-access-token --resource 'https://api.securitycenter.microsoft.com'"
+            $handler.Calls | Should -Be 2
+        } finally {
+            $client.Dispose()
+            $handler.Dispose()
+        }
+    }
+
     It 'refuses to overwrite a library filename that is not marked as template-owned' {
         Mock az {
             $global:LASTEXITCODE = 0
