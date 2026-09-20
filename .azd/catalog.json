@@ -1,0 +1,20 @@
+{
+  "title": "Windows Sysmon monitoring",
+  "summary": "Deploy pinned Sysmon monitoring and optionally stream Windows telemetry to Microsoft Sentinel.",
+  "tags": [
+    "Microsoft Sentinel",
+    "Sysmon",
+    "Windows Security"
+  ],
+  "highlights": [
+    "Pins Sysmon configuration assets and reusable components",
+    "Supports Azure VMs and Intune-managed Windows clients",
+    "Verifies telemetry in Log Analytics before tuning"
+  ],
+  "featured": false,
+  "solutionCount": 1,
+  "quickstartCommands": [
+    "azd init -t nathanmcnulty/azd-sysmon",
+    "azd up"
+  ]
+}
