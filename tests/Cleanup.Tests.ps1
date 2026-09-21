@@ -220,4 +220,40 @@ param(
         $receipt.status | Should -Be 'removed'
         $receipt.removedUtc | Should -Not -BeNullOrEmpty
     }
+
+    It 'deletes an owned Intune AMA application through the device app management endpoint' {
+        $statePath = Join-Path $receiptRoot 'ama.json'
+        $applicationId = '44444444-4444-4444-8444-444444444444'
+        $groupId = '33333333-3333-4333-8333-333333333333'
+        @{
+            template = 'azd-sysmon'
+            objectType = 'intune-windows-msi-application'
+            applicationId = $applicationId
+            groupId = $groupId
+            tenantId = '22222222-2222-4222-8222-222222222222'
+            account = 'operator@example.test'
+            environmentName = 'cleanup-test'
+            status = 'assigned'
+            adoptedExisting = $false
+        } | ConvertTo-Json | Set-Content -LiteralPath $statePath
+        Mock Import-Module {}
+        Mock Connect-AzdGraphSession {}
+        Mock Invoke-MgGraphRequest {
+            if ($Method -eq 'GET' -and $Uri -match '/deviceAppManagement/mobileApps/[^/]+$') {
+                return @{ '@odata.type' = '#microsoft.graph.windowsMobileMSI'; displayName = 'Azure Monitor Agent (azd-sysmon)'; description = 'Managed by azd-sysmon. The package is an SHA-256-pinned Microsoft Azure Monitor Agent Windows client MSI.' }
+            }
+            if ($Method -eq 'GET' -and $Uri -match '/assignments\?\$top=100$') {
+                return @{ value = @(@{ target = @{ '@odata.type' = '#microsoft.graph.groupAssignmentTarget'; groupId = $groupId } }) }
+            }
+            if ($Method -eq 'DELETE') { return @{} }
+            throw "Unexpected Graph request: $Method $Uri"
+        }
+
+        & (Join-Path $sourceRoot 'scripts/Remove-IntuneAmaApplication.ps1') -StatePath $statePath
+
+        Should -Invoke Invoke-MgGraphRequest -Times 1 -Exactly -ParameterFilter { $Method -eq 'GET' -and $Uri -eq "https://graph.microsoft.com/v1.0/deviceAppManagement/mobileApps/$applicationId" }
+        Should -Invoke Invoke-MgGraphRequest -Times 1 -Exactly -ParameterFilter { $Method -eq 'GET' -and $Uri -eq "https://graph.microsoft.com/v1.0/deviceAppManagement/mobileApps/$applicationId/assignments?`$top=100" }
+        Should -Invoke Invoke-MgGraphRequest -Times 1 -Exactly -ParameterFilter { $Method -eq 'DELETE' -and $Uri -eq "https://graph.microsoft.com/v1.0/deviceAppManagement/mobileApps/$applicationId" }
+        (Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json).status | Should -Be 'removed'
+    }
 }
