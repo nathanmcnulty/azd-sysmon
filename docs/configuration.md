@@ -21,6 +21,8 @@ The template uses AZD environment values so the safe default is an empty optiona
 | `AZD_SYSMON_PUBLISH_LIVE_RESPONSE_LIBRARY=true` | MDE `Library.Manage` and `AZD_SYSMON_MDE_ACCOUNT=<administrator UPN>` | Uploads the generated Live Response script to the tenant library. It does not run it. |
 | `AZD_SYSMON_CLIENT_AMA_TENANT_SCOPE=true` | workspace ID plus `AZD_SYSMON_CONFIRM_TENANT_SCOPE=I_UNDERSTAND_TENANT_WIDE_SCOPE` | Creates/updates the named tenant monitored-object association. This is tenant-wide for client-installed AMA and is intentionally fail-closed. |
 | `AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION=true` | confirmation string above | During `azd down`, removes only the recorded client AMA association. The monitored object is retained. |
+| `AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES=true` | none | During `azd down`, retains receipt-bound Intune, Defender, and client AMA objects for manual cleanup. The VM association to the AZD-owned DCR is still removed before the AZD resource group is deleted. |
+| `AZD_SYSMON_REMOVE_ADOPTED_EXTERNAL_RESOURCES=true` | none | Allows `azd down` to remove Intune or Defender objects that were explicitly adopted with `-AdoptExisting`. Without this setting, adopted objects are retained. |
 
 ## Selecting another Intune default
 

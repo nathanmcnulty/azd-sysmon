@@ -153,7 +153,7 @@ if (ConvertTo-BooleanSetting (Get-AzdSetting 'AZD_SYSMON_DEPLOY_INTUNE')) {
 
 if (ConvertTo-BooleanSetting (Get-AzdSetting 'AZD_SYSMON_PUBLISH_LIVE_RESPONSE_LIBRARY')) {
     Write-DeploymentState
-    & (Join-Path $PSScriptRoot 'Publish-LiveResponseScript.ps1') -ExpectedTenantId $tenantId -ExpectedAccount (Get-AzdSetting 'AZD_SYSMON_MDE_ACCOUNT')
+    & (Join-Path $PSScriptRoot 'Publish-LiveResponseScript.ps1') -ExpectedTenantId $tenantId -ExpectedAccount (Get-AzdSetting 'AZD_SYSMON_MDE_ACCOUNT') -EnvironmentName $environmentName
     $state.liveResponseLibrary = $true
     Write-DeploymentState
 }

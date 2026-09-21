@@ -74,6 +74,30 @@ function Get-GraphCollection {
     }
 }
 
+function Write-IntuneState {
+    param(
+        [Parameter(Mandatory)][string]$ScriptId,
+        [Parameter(Mandatory)][ValidateSet('created', 'assigned')][string]$Status,
+        [Parameter(Mandatory)][bool]$AdoptedExisting
+    )
+
+    $stateRoot = Join-Path $templateRoot (Join-Path '.azure' $EnvironmentName)
+    New-Item -ItemType Directory -Path $stateRoot -Force | Out-Null
+    [ordered]@{
+        template = 'azd-sysmon'
+        objectType = 'intune-device-health-script'
+        scriptId = $ScriptId
+        groupId = $GroupId
+        tenantId = $TenantId
+        account = $ExpectedAccount
+        environmentName = $EnvironmentName
+        configuration = $Configuration
+        adoptedExisting = $AdoptedExisting
+        status = $Status
+        recordedUtc = [DateTime]::UtcNow.ToString('o')
+    } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $stateRoot 'azd-sysmon-intune-state.json') -Encoding UTF8
+}
+
 $baseUri = 'https://graph.microsoft.com/beta/deviceManagement/deviceHealthScripts'
 $headers = @{ 'Content-Type' = 'application/json' }
 $existing = @(Get-GraphCollection -Uri "$baseUri`?`$top=100" | Where-Object { $_.displayName -eq 'AZD Sysmon Remediation' })
@@ -94,11 +118,13 @@ $scriptBody = @{
     deviceHealthScriptType = 'deviceHealthScript'
 }
 $scriptJson = $scriptBody | ConvertTo-Json -Depth 8
+$adoptedExisting = $false
 
 if ($existing.Count -eq 1) {
     if (-not $AdoptExisting -and ($existing[0].publisher -ne 'azd-sysmon' -or $existing[0].description -ne $marker)) {
         throw 'An object named AZD Sysmon Remediation exists but is not marked as owned by azd-sysmon. Pass -AdoptExisting only after review.'
     }
+    $adoptedExisting = [bool]$AdoptExisting
     $scriptId = [string]$existing[0].id
     $currentAssignments = @(Get-GraphCollection -Uri "$baseUri/$scriptId/assignments")
     foreach ($assignment in $currentAssignments) {
@@ -122,6 +148,10 @@ if ($existing.Count -eq 1) {
     if ([string]::IsNullOrWhiteSpace($scriptId)) { throw 'Graph did not return the new deviceHealthScript ID.' }
     Write-Host "Created Intune Remediation $scriptId"
 }
+
+# Persist the object identity before assignment so azd down can clean up a
+# partially completed deployment without guessing by display name.
+Write-IntuneState -ScriptId $scriptId -Status created -AdoptedExisting $adoptedExisting
 
 $assignmentUri = "$baseUri/$scriptId/assignments"
 $existingAssignment = @(Get-GraphCollection -Uri $assignmentUri)
@@ -152,8 +182,4 @@ if ($existingAssignment.Count -gt 1) {
 $assignmentJson = @{ deviceHealthScriptAssignments = @($assignmentBody) } | ConvertTo-Json -Depth 8
 Invoke-MgGraphRequest -Method POST -Uri "$baseUri/$scriptId/assign" -Headers $headers -Body $assignmentJson | Out-Null
 Write-Host "Assigned the remediation to group $GroupId" -ForegroundColor Green
-
-$stateRoot = Join-Path $templateRoot (Join-Path '.azure' $EnvironmentName)
-New-Item -ItemType Directory -Path $stateRoot -Force | Out-Null
-[ordered]@{ scriptId = $scriptId; groupId = $GroupId; tenantId = $TenantId; environmentName = $EnvironmentName; configuration = $Configuration; recordedUtc = [DateTime]::UtcNow.ToString('o') } |
-    ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $stateRoot 'azd-sysmon-intune-state.json') -Encoding UTF8
+Write-IntuneState -ScriptId $scriptId -Status assigned -AdoptedExisting $adoptedExisting

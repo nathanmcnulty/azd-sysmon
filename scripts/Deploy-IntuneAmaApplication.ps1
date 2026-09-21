@@ -234,6 +234,31 @@ function Get-SafeAzureStorageFailureDiagnostic {
     return "HTTP status $status; Azure error code $azureCode."
 }
 
+function Write-AmaState {
+    param(
+        [Parameter(Mandatory)][string]$ApplicationId,
+        [Parameter(Mandatory)][ValidateSet('created', 'assigned')][string]$Status,
+        [Parameter(Mandatory)][bool]$AdoptedExisting
+    )
+
+    $stateRoot = Join-Path $templateRoot (Join-Path '.azure' $EnvironmentName)
+    New-Item -ItemType Directory -Path $stateRoot -Force | Out-Null
+    [ordered]@{
+        template = 'azd-sysmon'
+        objectType = 'intune-windows-msi-application'
+        applicationId = $ApplicationId
+        groupId = $GroupId
+        tenantId = $TenantId
+        account = $ExpectedAccount
+        environmentName = $EnvironmentName
+        release = [string]$release.release
+        packageSha256 = [string]$release.sha256
+        adoptedExisting = $AdoptedExisting
+        status = $Status
+        recordedUtc = [DateTime]::UtcNow.ToString('o')
+    } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $stateRoot 'azd-sysmon-ama-application-state.json') -Encoding UTF8
+}
+
 function Upload-EncryptedBlob {
     param([Parameter(Mandatory)][string]$SasUri, [Parameter(Mandatory)][string]$Path)
     $blocks = [Collections.Generic.List[string]]::new()
@@ -276,6 +301,7 @@ $app = if ($existing.Count -eq 1) { $existing[0] } else { $null }
 $appExisted = $null -ne $app
 if ($app -and -not $AdoptExisting -and [string]$app.description -ne $marker) { throw "An application named '$displayName' exists but is not marked as owned by azd-sysmon. Pass -AdoptExisting only after review." }
 if ($app -and [string]$app.'@odata.type' -ne '#microsoft.graph.windowsMobileMSI') { throw "An application named '$displayName' is not a windowsMobileMSI application." }
+$adoptedExisting = [bool]($appExisted -and $AdoptExisting)
 $needsContent = -not $app -or
     [string]$app.productCode -ne [string]$release.productCode -or
     [string]$app.productVersion -ne [string]$release.release -or
@@ -317,6 +343,10 @@ if ($app) {
     $appId = [string]$app.id
     if ([string]::IsNullOrWhiteSpace($appId)) { throw 'Graph did not return the new Intune application ID.' }
 }
+
+# Persist the object identity before content upload so azd down can clean up a
+# partially completed deployment without guessing by display name.
+Write-AmaState -ApplicationId $appId -Status created -AdoptedExisting $adoptedExisting
 
 if ($needsContent) {
     # Intune exposes the content route for this concrete app type through its cast.
@@ -384,14 +414,5 @@ Wait-ForAppPublished -ApplicationId $appId
 
 $assignmentBody = @{ mobileAppAssignments = @(@{ '@odata.type' = '#microsoft.graph.mobileAppAssignment'; intent = 'required'; target = @{ '@odata.type' = '#microsoft.graph.groupAssignmentTarget'; groupId = $GroupId } }) }
 Invoke-MgGraphRequest -Method POST -Uri "$graphRoot/$appId/assign" -Headers $headers -Body ($assignmentBody | ConvertTo-Json -Depth 8) | Out-Null
-$stateRoot = Join-Path $templateRoot (Join-Path '.azure' $EnvironmentName)
-New-Item -ItemType Directory -Path $stateRoot -Force | Out-Null
-[ordered]@{
-    applicationId = $appId
-    groupId = $GroupId
-    tenantId = $TenantId
-    release = [string]$release.release
-    packageSha256 = [string]$release.sha256
-    recordedUtc = [DateTime]::UtcNow.ToString('o')
-} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $stateRoot 'azd-sysmon-ama-application-state.json') -Encoding UTF8
+Write-AmaState -ApplicationId $appId -Status assigned -AdoptedExisting $adoptedExisting
 Write-Output "Published Azure Monitor Agent $($release.release) to Intune application $appId and assigned it to group $GroupId."

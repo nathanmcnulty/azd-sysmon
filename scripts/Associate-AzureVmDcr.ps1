@@ -23,7 +23,9 @@ foreach ($vmId in $VmResourceIds) {
         if ($LASTEXITCODE -ne 0) { throw "DCR association failed for $vmId." }
     } else {
         Write-Host "Removing Sysmon DCR association from $vmId"
-        & az rest --method delete --url $uri --only-show-errors | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw "DCR association removal failed for $vmId." }
+        $deleteOutput = (& az rest --method delete --url $uri --only-show-errors 2>&1) -join [Environment]::NewLine
+        if ($LASTEXITCODE -ne 0 -and $deleteOutput -notmatch '(?i)(\b404\b|not.?found|ResourceNotFound)') {
+            throw "DCR association removal failed for $vmId."
+        }
     }
 }

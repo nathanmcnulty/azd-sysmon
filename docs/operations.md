@@ -75,12 +75,25 @@ The narrow rollback sequence is:
 1. Stop assigning new endpoint scripts.
 2. Remove only the named DCR association from Azure VMs or the client AMA monitored object, using the explicit helper for the latter.
 3. Run `azd down` to remove the AZD-owned DCR/resource group if it is no longer needed.
-4. Remove Intune and MDE library objects separately through their normal consoles/API only after confirming ownership.
+4. `azd down` removes the receipt-bound Intune Remediation, Intune AMA application,
+   Defender Live Response library file, and VM DCR associations created by the
+   selected environment. Set `AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES=true` if
+   the tenant-level objects must remain for investigation; the VM association
+   to the AZD-owned DCR is still removed before that DCR is deleted.
+5. Remove any retained or adopted Intune and MDE objects through their normal
+   consoles/API only after confirming ownership.
 
 The monitored object is not deleted by this template. Existing unrelated DCRs and associations are not modified.
 
+The target VM remains operator-owned. Cleanup does not uninstall Sysmon or the
+Azure Monitor Agent VM extension because their prior ownership cannot be proven
+from the deployment receipt. Review and remove endpoint software separately when
+the VM has no other workload that depends on it.
+
 Deployment receipts are stored under `.azure/<environment>/`. Cleanup reads only
-that environment's receipt and uses its recorded tenant and subscription. Before
-client AMA cleanup, set both `AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION=true` and
-`AZD_SYSMON_CONFIRM_TENANT_SCOPE=I_UNDERSTAND_TENANT_WIDE_SCOPE`. Verify the recorded
-association name before running `azd down`.
+that environment's receipts and uses recorded tenant, object, group, and
+subscription identities. It refuses to delete an object whose ownership marker,
+assignment, or recorded identifier no longer matches. Before client AMA cleanup,
+set both `AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION=true` and
+`AZD_SYSMON_CONFIRM_TENANT_SCOPE=I_UNDERSTAND_TENANT_WIDE_SCOPE`. Verify the
+recorded association name before running `azd down`.

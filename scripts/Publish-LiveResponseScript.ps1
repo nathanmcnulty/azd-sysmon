@@ -6,6 +6,7 @@ param(
     [string]$ExpectedTenantId = $env:AZURE_TENANT_ID,
     [string]$ExpectedAccount = $env:AZD_SYSMON_MDE_ACCOUNT,
     [switch]$AdoptExisting,
+    [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$')][string]$EnvironmentName = 'default',
     [System.Net.Http.HttpClient]$HttpClient
 )
 
@@ -71,6 +72,35 @@ try {
     if (-not $response.IsSuccessStatusCode) {
         throw "Defender Live Response library upload failed with $([int]$response.StatusCode): $responseBody"
     }
+
+    $responseFileId = $null
+    if (-not [string]::IsNullOrWhiteSpace($responseBody)) {
+        try {
+            $responseObject = $responseBody | ConvertFrom-Json -ErrorAction Stop
+            $responseFileId = if ($responseObject.id) { [string]$responseObject.id } elseif ($responseObject.fileId) { [string]$responseObject.fileId } else { $null }
+        } catch {
+            # Some tenants return an empty or non-JSON success body. The
+            # follow-up cleanup path can still identify the exact managed file
+            # by filename and ownership description.
+            $responseFileId = $null
+        }
+    }
+    $fileId = if ($responseFileId) { $responseFileId } elseif ($libraryFiles.Count -eq 1) { [string]$libraryFiles[0].id } else { $null }
+    $stateRoot = Join-Path (Split-Path -Parent $PSScriptRoot) (Join-Path '.azure' $EnvironmentName)
+    New-Item -ItemType Directory -Path $stateRoot -Force | Out-Null
+    [ordered]@{
+        template = 'azd-sysmon'
+        objectType = 'defender-live-response-library-file'
+        fileId = $fileId
+        fileName = $fileName
+        description = $Description
+        tenantId = $ExpectedTenantId
+        account = $ExpectedAccount
+        environmentName = $EnvironmentName
+        adoptedExisting = [bool]($libraryFiles.Count -eq 1 -and $AdoptExisting)
+        status = 'published'
+        recordedUtc = [DateTime]::UtcNow.ToString('o')
+    } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $stateRoot 'azd-sysmon-live-response-state.json') -Encoding UTF8
     Write-Host "Published $fileName to the Defender Live Response library." -ForegroundColor Green
 } finally {
     $multipart.Dispose()

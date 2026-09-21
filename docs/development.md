@@ -38,13 +38,26 @@ update their release URLs and SHA-256 values in `config/sysmon-modular-release.j
 Then rebuild twice and compare hashes. The normal Sysmon build is offline;
 deployment never fetches configuration files or private component sources.
 
-## Public repository promotion
+The scheduled `Monitor upstream inputs` workflow runs
+`scripts/Test-UpstreamUpdates.ps1` weekly and on manual dispatch. It downloads
+the pinned AMA MSI and Sysmon configuration URLs into a temporary runner
+directory, compares their SHA-256 values, and checks the latest
+`configs-*` Sysmon Modular release tag. It never rewrites the repository. A
+detected change opens one review issue and fails the monitor until the maintainer
+reviews the upstream release, updates the manifests and generated scripts, and
+reruns repository validation. Run the same check locally with:
 
-The standalone workflow is included under `.github/workflows/validate.yml`.
-The incubation repository also runs `.github/workflows/validate-azd-sysmon.yml`.
-Before promotion, validate endpoint install/update/detection and fresh events,
-then the selected AMA/DCR ingestion route and Intune assignment. Capture actual
-results separately from mocked tests. Publish only project files; exclude `.azure`,
-downloaded MSI artifacts, local reports, and credentials. Keep third-party notices
-alongside the Unlicense, and update the canonical consumer registry to the new
-repository after creation.
+```powershell
+pwsh -File .\scripts\Test-UpstreamUpdates.ps1 -Run
+```
+
+## Public repository maintenance
+
+The standalone validation workflow is included under
+`.github/workflows/validate.yml`. For changes that affect a live endpoint,
+validate install/update/detection and fresh events, then the selected AMA/DCR
+ingestion route and Intune assignment. Capture actual results separately from
+mocked tests. Publish only project files; exclude `.azure`, downloaded MSI
+artifacts, local reports, and credentials. Keep third-party notices alongside
+the Unlicense, and keep the canonical consumer registry aligned with this
+public repository.
