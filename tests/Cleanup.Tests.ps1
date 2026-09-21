@@ -1,6 +1,8 @@
 #requires -Version 7.2
 BeforeAll {
     $sourceRoot = Split-Path -Parent $PSScriptRoot
+    function Connect-AzdGraphSession { param($TenantId, $ExpectedAccount, $Scopes, $ProbeUri, [switch]$AllowInteractive, [switch]$AllowContextReplacement) }
+    function Invoke-MgGraphRequest { param($Method, $Uri, $Headers, $Body) }
 }
 
 Describe 'azd down receipt cleanup' {
@@ -164,5 +166,53 @@ param(
         } finally {
             Remove-Item -LiteralPath Function:\az -ErrorAction SilentlyContinue
         }
+    }
+
+    It 'adds a removed timestamp when an Intune Remediation is already absent' {
+        $statePath = Join-Path $receiptRoot 'remediation.json'
+        @{
+            template = 'azd-sysmon'
+            objectType = 'intune-device-health-script'
+            scriptId = '11111111-1111-4111-8111-111111111111'
+            groupId = '33333333-3333-4333-8333-333333333333'
+            tenantId = '22222222-2222-4222-8222-222222222222'
+            account = 'operator@example.test'
+            environmentName = 'cleanup-test'
+            status = 'assigned'
+            adoptedExisting = $false
+        } | ConvertTo-Json | Set-Content -LiteralPath $statePath
+        Mock Import-Module {}
+        Mock Connect-AzdGraphSession {}
+        Mock Invoke-MgGraphRequest { throw '404 ResourceNotFound' }
+
+        & (Join-Path $sourceRoot 'scripts/Remove-IntuneRemediation.ps1') -StatePath $statePath
+
+        $receipt = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+        $receipt.status | Should -Be 'removed'
+        $receipt.removedUtc | Should -Not -BeNullOrEmpty
+    }
+
+    It 'adds a removed timestamp when an Intune AMA application is already absent' {
+        $statePath = Join-Path $receiptRoot 'ama.json'
+        @{
+            template = 'azd-sysmon'
+            objectType = 'intune-windows-msi-application'
+            applicationId = '44444444-4444-4444-8444-444444444444'
+            groupId = '33333333-3333-4333-8333-333333333333'
+            tenantId = '22222222-2222-4222-8222-222222222222'
+            account = 'operator@example.test'
+            environmentName = 'cleanup-test'
+            status = 'assigned'
+            adoptedExisting = $false
+        } | ConvertTo-Json | Set-Content -LiteralPath $statePath
+        Mock Import-Module {}
+        Mock Connect-AzdGraphSession {}
+        Mock Invoke-MgGraphRequest { throw '404 ResourceNotFound' }
+
+        & (Join-Path $sourceRoot 'scripts/Remove-IntuneAmaApplication.ps1') -StatePath $statePath
+
+        $receipt = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+        $receipt.status | Should -Be 'removed'
+        $receipt.removedUtc | Should -Not -BeNullOrEmpty
     }
 }
