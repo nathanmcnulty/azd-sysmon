@@ -3,6 +3,11 @@ BeforeAll {
     $sourceRoot = Split-Path -Parent $PSScriptRoot
     function Connect-AzdGraphSession { param($TenantId, $ExpectedAccount, $Scopes, $ProbeUri, [switch]$AllowInteractive, [switch]$AllowContextReplacement) }
     function Invoke-MgGraphRequest { param($Method, $Uri, $Headers, $Body) }
+    function New-GraphNotFoundException {
+        $exception = [System.Exception]::new('Response status code does not indicate success: NotFound (Not Found).')
+        $exception | Add-Member -MemberType NoteProperty -Name Response -Value ([pscustomobject]@{ StatusCode = 404 }) -Force
+        return $exception
+    }
 }
 
 Describe 'azd down receipt cleanup' {
@@ -183,7 +188,7 @@ param(
         } | ConvertTo-Json | Set-Content -LiteralPath $statePath
         Mock Import-Module {}
         Mock Connect-AzdGraphSession {}
-        Mock Invoke-MgGraphRequest { throw '404 ResourceNotFound' }
+        Mock Invoke-MgGraphRequest { throw (New-GraphNotFoundException) }
 
         & (Join-Path $sourceRoot 'scripts/Remove-IntuneRemediation.ps1') -StatePath $statePath
 
@@ -207,7 +212,7 @@ param(
         } | ConvertTo-Json | Set-Content -LiteralPath $statePath
         Mock Import-Module {}
         Mock Connect-AzdGraphSession {}
-        Mock Invoke-MgGraphRequest { throw '404 ResourceNotFound' }
+        Mock Invoke-MgGraphRequest { throw (New-GraphNotFoundException) }
 
         & (Join-Path $sourceRoot 'scripts/Remove-IntuneAmaApplication.ps1') -StatePath $statePath
 
