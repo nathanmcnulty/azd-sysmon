@@ -100,6 +100,31 @@ Add-Content -LiteralPath (Join-Path (Split-Path -Parent $StatePath) 'cleanup.log
         { & $preDown } | Should -Throw '*records no VM resource IDs*'
     }
 
+    It 'refuses to delete the resource group when an external object receipt is missing' {
+        foreach ($case in @(
+            @{ flag = 'intuneRemediation'; message = 'Intune Remediation' }
+            @{ flag = 'intuneAmaApplication'; message = 'Intune AMA application' }
+            @{ flag = 'liveResponseLibrary'; message = 'Live Response file' }
+        )) {
+            $state = @{
+                template = 'azd-sysmon'
+                environmentName = 'cleanup-test'
+                azureSubscriptionId = '11111111-1111-4111-8111-111111111111'
+                azureTenantId = '22222222-2222-4222-8222-222222222222'
+                intuneRemediation = $false
+                intuneAmaApplication = $false
+                liveResponseLibrary = $false
+                vmDcrAssociated = $false
+                clientAmaTenantScope = $false
+                clientAmaAssociationAttempted = $false
+            }
+            $state[$case.flag] = $true
+            $state | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $receiptRoot 'azd-sysmon-state.json')
+
+            { & $preDown } | Should -Throw "*$($case.message)*object receipt is missing*"
+        }
+    }
+
     It 'continues when receipt-bound helpers already recorded removal' {
         foreach ($helper in 'Remove-IntuneRemediation.ps1', 'Remove-IntuneAmaApplication.ps1', 'Remove-LiveResponseScript.ps1') {
             Copy-Item (Join-Path $sourceRoot "scripts/$helper") (Join-Path $scriptRoot $helper)

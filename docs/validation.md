@@ -36,6 +36,10 @@ published source tree.
   Sysmon Event 1 captured its unique harmless command marker under SYSTEM, with
   the Intune Management Extension's `HealthScripts/.../remediate.ps1` as parent.
   No on-demand request was sent to this probe.
+- A live `azd down` removed the pilot DCR/resource group, receipt-bound Intune
+  objects, and the named client AMA association while retaining the tenant
+  monitored object, Sentinel workspace, and pilot group. A second `azd down`
+  completed successfully with no Azure resources found.
 
 ## Limits
 
