@@ -41,7 +41,14 @@ $appUri = "$baseUri/$($state.applicationId)"
 $marker = 'Managed by azd-sysmon. The package is an SHA-256-pinned Microsoft Azure Monitor Agent Windows client MSI.'
 function Test-NotFound {
     param([Parameter(Mandatory)][System.Management.Automation.ErrorRecord]$ErrorRecord)
-    return $ErrorRecord.Exception.Message -match '(?i)(\b404\b|Request_ResourceNotFound|ResourceNotFound)'
+    $response = $ErrorRecord.Exception.PSObject.Properties['Response']
+    if ($response -and $response.Value -and [int]$response.Value.StatusCode -eq 404) { return $true }
+    $message = @(
+        [string]$ErrorRecord.Exception.Message
+        [string]$ErrorRecord.ErrorDetails
+        [string]$ErrorRecord.ToString()
+    ) -join "`n"
+    return $message -match '(?i)(\b404\b|Request_ResourceNotFound|ResourceNotFound)'
 }
 function Get-GraphCollection {
     param([Parameter(Mandatory)][string]$Uri)
