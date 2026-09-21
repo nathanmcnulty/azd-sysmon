@@ -31,12 +31,16 @@ The optional AMA MSI application publisher additionally uses
 `DeviceManagementApps.ReadWrite.All`. Client AMA association management reuses the
 selected Azure CLI account and checks its tenant, subscription, and cloud before
 acquiring an ARM token. It does not require a separate Azure PowerShell login.
+The pre-down cleanup uses the same delegated Graph permissions to delete only
+receipt-bound objects whose ownership markers and group assignments still match.
 
 The user also needs the appropriate Intune RBAC role and licensing. The helper creates or updates only the object marked `Managed by azd-sysmon`; it refuses to adopt an unrelated object with the same display name unless `-AdoptExisting` is supplied deliberately.
 
 ## Defender for Endpoint
 
 The optional Live Response library publisher uses the Defender API permission `Library.Manage`. It publishes the script only. Running the script against a device remains a separate Live Response action and requires the appropriate MDE device permissions and device-group remediation level.
+The same `Library.Manage` permission is used by `azd down` to remove the exact
+receipt-bound library file after verifying its filename and ownership marker.
 
 The publisher calls `https://api.security.microsoft.com`, but requests the token
 with the legacy Defender resource audience `https://api.securitycenter.microsoft.com`.

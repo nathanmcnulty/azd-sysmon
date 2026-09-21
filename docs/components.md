@@ -10,9 +10,9 @@ The template is self-contained. Deployments never fetch source from the private
 `azd-components.lock.json` records the canonical source repository, component
 version, commit, source paths, destination paths, and SHA-256 hashes. The normal
 repository checks verify the vendored bytes without access to the source repo.
-The canonical portfolio registry tracks this incubating consumer at
-`azd-work-in-progress/azd-sysmon`; update its repository and checkout paths when
-the standalone repository is published.
+The canonical portfolio registry tracks the public consumer at
+`nathanmcnulty/azd-sysmon`. Keep the registry entry aligned with this repository
+when the component baseline or canonical checkout changes.
 
 Maintainers with an `azd-reference` checkout can update explicitly:
 

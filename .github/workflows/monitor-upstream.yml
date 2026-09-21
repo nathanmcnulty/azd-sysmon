@@ -1,0 +1,56 @@
+name: Monitor upstream inputs
+
+on:
+  schedule:
+    - cron: '23 8 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: monitor-upstream
+  cancel-in-progress: true
+
+jobs:
+  monitor:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check pinned AMA and Sysmon inputs
+        id: check
+        run: |
+          $reportPath = Join-Path $env:RUNNER_TEMP 'azd-sysmon-upstream-report.json'
+          $summaryPath = Join-Path $env:RUNNER_TEMP 'azd-sysmon-upstream-summary.md'
+          $json = ./scripts/Test-UpstreamUpdates.ps1 -Run -ReportPath $reportPath -SummaryPath $summaryPath
+          $report = $json | ConvertFrom-Json
+          Get-Content -LiteralPath $summaryPath | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
+          "hasUpdates=$(([bool]$report.hasUpdates).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          "reportPath=$reportPath" >> $env:GITHUB_OUTPUT
+          "summaryPath=$summaryPath" >> $env:GITHUB_OUTPUT
+      - name: Open a review issue for upstream changes
+        if: steps.check.outputs.hasUpdates == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SUMMARY_PATH: ${{ steps.check.outputs.summaryPath }}
+        run: |
+          $title = 'Upstream update detected: azd-sysmon pinned inputs'
+          $issueJson = gh issue list --repo $env:GITHUB_REPOSITORY --state open --limit 100 --json title,number
+          if ($LASTEXITCODE -ne 0) { throw 'Could not inspect existing upstream monitor issues.' }
+          $openIssues = @($issueJson | ConvertFrom-Json)
+          if (-not ($openIssues | Where-Object title -eq $title)) {
+            $body = @"
+          The scheduled upstream monitor found a change in a pinned AMA or Sysmon input.
+
+          Review the report below, update the manifest and vendored/generated artifacts deliberately, run the full repository validation, and close this issue only after the new hashes and release metadata are reviewed.
+
+          $(Get-Content -LiteralPath $env:SUMMARY_PATH -Raw)
+          "@
+            gh issue create --repo $env:GITHUB_REPOSITORY --title $title --body $body
+          }
+          throw 'Pinned upstream inputs changed. Review the opened issue before updating the repository.'

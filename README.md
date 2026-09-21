@@ -131,7 +131,20 @@ Sentinel’s Windows Security Events solution is not required for this Sysmon pa
 
 See [docs/operations.md](docs/operations.md) for the Event-table queries, heartbeat checks, ASIM checks, and volume measurement.
 
-`azd down` removes resources owned by the AZD environment, including the optional DCR. It does not remove Intune Remediation objects, Intune AMA applications, MDE Live Response library files, or the tenant monitored object. Removing the client AMA association requires the explicit pre-down settings documented in [docs/operations.md](docs/operations.md).
+`azd down` removes resources owned by the AZD environment, including the optional DCR. Before the resource group is removed, it also deletes the receipt-bound Intune Remediation, Intune AMA application, Defender Live Response library file, and Azure VM DCR associations created by this environment. It never guesses by display name: each object must match its recorded tenant, object ID, ownership marker, and assignment. Set `AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES=true` to retain tenant-level external objects for a deliberate manual cleanup; the VM association to the AZD-owned DCR is still removed so that deleting the resource group does not leave a dangling reference. Adopted pre-existing objects are retained unless `AZD_SYSMON_REMOVE_ADOPTED_EXTERNAL_RESOURCES=true` is set.
+
+The tenant-wide client AMA association remains behind the explicit
+`AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION=true` and
+`AZD_SYSMON_CONFIRM_TENANT_SCOPE=I_UNDERSTAND_TENANT_WIDE_SCOPE` settings. The
+tenant monitored object itself is retained. If an object receipt is missing or
+its ownership marker has changed, `azd down` stops before deleting the AZD
+resource group so the operator can resolve the boundary safely.
+
+The VM itself is operator-owned. `azd down` does not uninstall Sysmon or remove
+the Azure Monitor Agent VM extension, because this deployment cannot prove that
+either was installed by this environment or that another workload does not use
+it. Remove endpoint software separately after reviewing the VM's ownership and
+current configuration.
 
 ## Documentation
 

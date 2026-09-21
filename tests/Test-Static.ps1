@@ -43,6 +43,12 @@ Get-ChildItem -LiteralPath $templateRoot -Recurse -File | Where-Object { $_.Exte
 
 $remediationPath = Join-Path $templateRoot 'deploy\intune\Remediate-Sysmon.ps1'
 $detectionPath = Join-Path $templateRoot 'deploy\intune\Detect-Sysmon.ps1'
+$predown = Get-Content -LiteralPath (Join-Path $templateRoot 'scripts\Pre-Down.ps1') -Raw
+Assert-Condition ($predown -match 'Remove-IntuneRemediation\.ps1') 'azd down must invoke receipt-bound Intune Remediation cleanup.'
+Assert-Condition ($predown -match 'Remove-IntuneAmaApplication\.ps1') 'azd down must invoke receipt-bound Intune AMA application cleanup.'
+Assert-Condition ($predown -match 'Remove-LiveResponseScript\.ps1') 'azd down must invoke receipt-bound Defender Live Response cleanup.'
+Assert-Condition ($predown -match 'Associate-AzureVmDcr\.ps1') 'azd down must remove receipt-bound Azure VM DCR associations.'
+Assert-Condition ((Get-Content -LiteralPath (Join-Path $templateRoot '.github\workflows\monitor-upstream.yml') -Raw) -match 'Test-UpstreamUpdates\.ps1') 'The scheduled upstream monitor must run the pinned-input checker.'
 Assert-Condition ((Get-Item -LiteralPath $remediationPath).Length -lt 200KB) 'Intune remediation script must remain below 200 KB.'
 Assert-Condition ((Get-Item -LiteralPath $detectionPath).Length -lt 200KB) 'Intune detection script must remain below 200 KB.'
 foreach ($generatedFile in $packageManifest.generatedFiles.PSObject.Properties) {
