@@ -81,7 +81,7 @@ if ($preserveExternal) {
         Invoke-CleanupHelper -ScriptName 'Remove-IntuneRemediation.ps1' -ReceiptPath $intuneReceiptPath -RemoveAdopted:$removeAdopted
         if ((Read-Receipt -Path $intuneReceiptPath).status -eq 'removed') { $state.intuneRemediation = $false }
     } elseif ($state.intuneRemediation) {
-        Write-Warning 'The deployment receipt says an Intune Remediation was attempted, but its object receipt is missing; leaving it unchanged.'
+        throw 'The deployment receipt says an Intune Remediation was attempted, but its object receipt is missing; refusing to delete the AZD resource group.'
     }
 
     $amaReceiptPath = Get-StatePath 'azd-sysmon-ama-application-state.json'
@@ -89,7 +89,7 @@ if ($preserveExternal) {
         Invoke-CleanupHelper -ScriptName 'Remove-IntuneAmaApplication.ps1' -ReceiptPath $amaReceiptPath -RemoveAdopted:$removeAdopted
         if ((Read-Receipt -Path $amaReceiptPath).status -eq 'removed') { $state.intuneAmaApplication = $false }
     } elseif ($state.intuneAmaApplication) {
-        Write-Warning 'The deployment receipt says an Intune AMA application was attempted, but its object receipt is missing; leaving it unchanged.'
+        throw 'The deployment receipt says an Intune AMA application was attempted, but its object receipt is missing; refusing to delete the AZD resource group.'
     }
 
     $liveReceiptPath = Get-StatePath 'azd-sysmon-live-response-state.json'
@@ -97,7 +97,7 @@ if ($preserveExternal) {
         Invoke-CleanupHelper -ScriptName 'Remove-LiveResponseScript.ps1' -ReceiptPath $liveReceiptPath -RemoveAdopted:$removeAdopted
         if ((Read-Receipt -Path $liveReceiptPath).status -eq 'removed') { $state.liveResponseLibrary = $false }
     } elseif ($state.liveResponseLibrary) {
-        Write-Warning 'The deployment receipt says a Live Response file was published, but its object receipt is missing; leaving it unchanged.'
+        throw 'The deployment receipt says a Live Response file was published, but its object receipt is missing; refusing to delete the AZD resource group.'
     }
 
 }
