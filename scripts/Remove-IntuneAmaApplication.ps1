@@ -58,7 +58,7 @@ function Get-GraphCollection {
 }
 function Write-RemovedState {
     $state.status = 'removed'
-    $state.removedUtc = [DateTime]::UtcNow.ToString('o')
+    $state | Add-Member -MemberType NoteProperty -Name removedUtc -Value ([DateTime]::UtcNow.ToString('o')) -Force
     $state | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $StatePath -Encoding UTF8
 }
 
