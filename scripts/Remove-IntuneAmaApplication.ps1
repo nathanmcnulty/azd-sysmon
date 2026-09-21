@@ -55,7 +55,7 @@ function Get-GraphCollection {
     $seen = [Collections.Generic.HashSet[string]]::new()
     while ($Uri) {
         $parsed = [Uri]$Uri
-        if ($parsed.Scheme -ne 'https' -or $parsed.Host -ne 'graph.microsoft.com' -or -not $parsed.AbsolutePath.StartsWith('/v1.0/deviceManagement/mobileApps', [StringComparison]::Ordinal) -or -not $seen.Add($Uri)) {
+        if ($parsed.Scheme -ne 'https' -or $parsed.Host -ne 'graph.microsoft.com' -or -not $parsed.AbsolutePath.StartsWith('/v1.0/deviceAppManagement/mobileApps', [StringComparison]::Ordinal) -or -not $seen.Add($Uri)) {
             throw 'Graph returned an unexpected or repeated pagination URL.'
         }
         $page = Invoke-MgGraphRequest -Method GET -Uri $Uri
