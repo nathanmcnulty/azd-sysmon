@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "1.0",
+  "solutionId": "azd-sysmon",
+  "status": "implemented",
+  "coverage": "partial",
+  "reviewedOn": "2026-10-02",
+  "requirements": [
+    {
+      "resource": "https://graph.microsoft.com",
+      "kind": "delegated",
+      "permission": "DeviceManagementScripts.ReadWrite.All",
+      "principal": "deployment-operator",
+      "phase": "deployment",
+      "feature": "intune-remediation",
+      "defaultEnabled": false,
+      "scope": "tenant",
+      "rationale": "Required by the recorded project capability.",
+      "evidenceState": "documented",
+      "evidence": [
+        {
+          "path": "docs/identity-and-authentication.md",
+          "sha256": "c1604267b9e86599c956f2719a8ce61ec9833410a10db4fd3e363234e387974b"
+        }
+      ]
+    },
+    {
+      "resource": "https://graph.microsoft.com",
+      "kind": "delegated",
+      "permission": "DeviceManagementApps.ReadWrite.All",
+      "principal": "deployment-operator",
+      "phase": "deployment",
+      "feature": "intune-ama-application",
+      "defaultEnabled": false,
+      "scope": "tenant",
+      "rationale": "Required by the recorded project capability.",
+      "evidenceState": "documented",
+      "evidence": [
+        {
+          "path": "docs/identity-and-authentication.md",
+          "sha256": "c1604267b9e86599c956f2719a8ce61ec9833410a10db4fd3e363234e387974b"
+        }
+      ]
+    },
+    {
+      "resource": "https://api.securitycenter.microsoft.com",
+      "kind": "delegated",
+      "permission": "Library.Manage",
+      "principal": "deployment-operator",
+      "phase": "deployment",
+      "feature": "live-response-publisher",
+      "defaultEnabled": false,
+      "scope": "tenant",
+      "rationale": "Required by the recorded project capability.",
+      "evidenceState": "documented",
+      "evidence": [
+        {
+          "path": "docs/identity-and-authentication.md",
+          "sha256": "c1604267b9e86599c956f2719a8ce61ec9833410a10db4fd3e363234e387974b"
+        }
+      ]
+    },
+    {
+      "resource": "azure",
+      "kind": "azure-rbac",
+      "permission": "Monitored Objects Contributor",
+      "principal": "deployment-operator",
+      "phase": "deployment",
+      "feature": "client-ama-association",
+      "defaultEnabled": false,
+      "scope": "Microsoft.Insights-provider-root",
+      "rationale": "Required by the recorded project capability.",
+      "evidenceState": "documented",
+      "evidence": [
+        {
+          "path": "docs/identity-and-authentication.md",
+          "sha256": "c1604267b9e86599c956f2719a8ce61ec9833410a10db4fd3e363234e387974b"
+        }
+      ]
+    }
+  ],
+  "gaps": [
+    "Azure RBAC scopes, operator/consent roles, cleanup, and optional connector permissions still need a full review."
+  ]
+}
