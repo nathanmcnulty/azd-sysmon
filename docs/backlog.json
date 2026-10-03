@@ -1,0 +1,756 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "nathanmcnulty/azd-sysmon",
+  "sourceRevision": "b95b627923ebeb1ad69e4a4f83050ba2f416bca3",
+  "capturedAt": "2026-10-03",
+  "items": [
+    {
+      "id": "SYS-001",
+      "title": "Reconcile this backlog with current source and active work",
+      "kind": "discovery",
+      "priority": "P1",
+      "status": "ready",
+      "wave": 0,
+      "problem": "Plans and implementation evidence are spread across files; the captured source can change while other tasks work.",
+      "scope": [
+        "docs/backlog.json",
+        "docs/backlog.md",
+        "Existing roadmap, execution status, open issues and pull requests (read-only)"
+      ],
+      "acceptance": [
+        "Classify each candidate as implemented, still open, superseded or awaiting evidence; retain source links and reasons.",
+        "Inspect dirty state, remotes, worktrees and local environment presence without reading secrets; avoid duplicate work with active owners.",
+        "Resolve the actual offline validation commands and record exact current default-branch/working-tree provenance; do not copy historical live passes to newer code."
+      ],
+      "validation": [
+        "git status --short",
+        "git remote -v",
+        "git worktree list --porcelain",
+        "Read the applicable instructions and validation workflow; read gh issue list and gh pr list for the named repository using nathanmcnulty. Do not create or modify issues/PRs."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "README.md",
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-002",
+      "title": "Validate the Azure VM path on a disposable Windows VM",
+      "kind": "verification",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Deferred existing follow-up: Validate the Azure VM path on a disposable Windows VM: Run Command installation, built-in Sysmon health, AMA extension provisioning with automatic upgrade, named DCR association, fresh `Event` and `Heartbeat` records, and the expected VM-preserving teardown boundary.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Validate the Azure VM path on a disposable Windows VM: Run Command installation, built-in Sysmon health, AMA extension provisioning with automatic upgrade, named DCR association, fresh `Event` and `Heartbeat` records, and the expected VM-preserving teardown boundary.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "tenant-write",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-003",
+      "title": "Repeat AMA installation on a clean Windows client or VM that did not have AMA preinstalled",
+      "kind": "verification",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Deferred existing follow-up: Repeat AMA installation on a clean Windows client or VM that did not have AMA preinstalled. Record first install, reboot or pending behavior, repair or detection behavior, product code, version, and endpoint heartbeat.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Repeat AMA installation on a clean Windows client or VM that did not have AMA preinstalled. Record first install, reboot or pending behavior, repair or detection behavior, product code, version, and endpoint heartbeat.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "tenant-write",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-004",
+      "title": "Exercise the real Defender Live Response publish/delete path",
+      "kind": "verification",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Deferred existing follow-up: Exercise the real Defender Live Response publish/delete path. Use a temporary least-privilege application registration with `Library.Manage`, publish the marker-owned script, verify it in the library, delete it through the cleanup helper, and remove the temporary registration afterward. Execute a harmless Live Response command only with separate explicit authorization.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Exercise the real Defender Live Response publish/delete path. Use a temporary least-privilege application registration with `Library.Manage`, publish the marker-owned script, verify it in the library, delete it through the cleanup helper, and remove the temporary registration afterward. Execute a harmless Live Response command only with separate explicit authorization.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "publication",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-005",
+      "title": "Test an Intune AMA content update and rollback using a later pinned MSI",
+      "kind": "verification",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Deferred existing follow-up: Test an Intune AMA content update and rollback using a later pinned MSI: verify content-version progression, unchanged reruns, interrupted-upload recovery, assignment preservation, and removal of the superseded package.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Test an Intune AMA content update and rollback using a later pinned MSI: verify content-version progression, unchanged reruns, interrupted-upload recovery, assignment preservation, and removal of the superseded package.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "tenant-write",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-006",
+      "title": "Run a controlled client AMA tenant-scope canary with explicit approval",
+      "kind": "verification",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Deferred existing follow-up: Run a controlled client AMA tenant-scope canary with explicit approval. Verify the association affects the intended client population, does not alter unrelated DCRs, and is removed cleanly before broad use.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Run a controlled client AMA tenant-scope canary with explicit approval. Verify the association affects the intended client population, does not alter unrelated DCRs, and is removed cleanly before broad use.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "tenant-write",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-007",
+      "title": "Exercise `AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES` and adopted-object behavior against disposable tenant objects",
+      "kind": "verification",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Deferred existing follow-up: Exercise `AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES` and adopted-object behavior against disposable tenant objects. Confirm retained receipts can be cleaned deliberately later with the explicit removal setting.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Exercise `AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES` and adopted-object behavior against disposable tenant objects. Confirm retained receipts can be cleaned deliberately later with the explicit removal setting.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "tenant-write",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-008",
+      "title": "Rehearse a partial-failure recovery",
+      "kind": "verification",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Deferred existing follow-up: Rehearse a partial-failure recovery: interrupt or fail one external cleanup step, confirm the resource group is not removed when ownership cannot be proven, then rerun after the receipt and object state are reconciled.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Rehearse a partial-failure recovery: interrupt or fail one external cleanup step, confirm the resource group is not removed when ownership cannot be proven, then rerun after the receipt and object state are reconciled.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "tenant-write",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-009",
+      "title": "Measure the canary's event volume by event ID, review privacy and cost, and decide whether the broad Sysmon XPath should be narrowed for each supported configuration",
+      "kind": "verification",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Deferred existing follow-up: Measure the canary's event volume by event ID, review privacy and cost, and decide whether the broad Sysmon XPath should be narrowed for each supported configuration.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Measure the canary's event volume by event ID, review privacy and cost, and decide whether the broad Sysmon XPath should be narrowed for each supported configuration.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "tenant-write",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-010",
+      "title": "Add a manual Windows integration workflow that runs only with explicitly supplied disposable Azure, Graph, Intune, and Sentinel targets",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Add a manual Windows integration workflow that runs only with explicitly supplied disposable Azure, Graph, Intune, and Sentinel targets. Keep tenant mutation disabled by default and publish only redacted evidence.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Add a manual Windows integration workflow that runs only with explicitly supplied disposable Azure, Graph, Intune, and Sentinel targets. Keep tenant mutation disabled by default and publish only redacted evidence.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-011",
+      "title": "Add scheduled, read-only API smoke checks for the Graph Intune routes, Microsoft.Insights monitored-object routes, and Defender library routes so service-contract drift is detected separately from pinned-input changes",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Add scheduled, read-only API smoke checks for the Graph Intune routes, Microsoft.Insights monitored-object routes, and Defender library routes so service-contract drift is detected separately from pinned-input changes.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Add scheduled, read-only API smoke checks for the Graph Intune routes, Microsoft.Insights monitored-object routes, and Defender library routes so service-contract drift is detected separately from pinned-input changes.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-012",
+      "title": "Add tests for truncated or corrupt JSON receipts and make receipt writes use a recoverable temporary-file replacement where practical",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Add tests for truncated or corrupt JSON receipts and make receipt writes use a recoverable temporary-file replacement where practical.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Add tests for truncated or corrupt JSON receipts and make receipt writes use a recoverable temporary-file replacement where practical.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-013",
+      "title": "Add a test matrix for the supported PowerShell versions and Windows environments, including the minimum documented PowerShell 7.2 runtime",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Add a test matrix for the supported PowerShell versions and Windows environments, including the minimum documented PowerShell 7.2 runtime.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Add a test matrix for the supported PowerShell versions and Windows environments, including the minimum documented PowerShell 7.2 runtime.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-014",
+      "title": "Test upstream-monitor issue creation with a fixture or isolated test repository, including duplicate-issue suppression and failure recovery",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Test upstream-monitor issue creation with a fixture or isolated test repository, including duplicate-issue suppression and failure recovery.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Test upstream-monitor issue creation with a fixture or isolated test repository, including duplicate-issue suppression and failure recovery.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "publication",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-015",
+      "title": "Keep GitHub Actions SHAs, Dependabot updates, CodeQL, dependency review, and the vendored `azd-reference` lock synchronized after every release",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Keep GitHub Actions SHAs, Dependabot updates, CodeQL, dependency review, and the vendored `azd-reference` lock synchronized after every release.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Keep GitHub Actions SHAs, Dependabot updates, CodeQL, dependency review, and the vendored `azd-reference` lock synchronized after every release.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-016",
+      "title": "Create a short promotion checklist covering source review, license and third-party notice review, component-lock verification, reproducible package rebuilds, live evidence, public-repository metadata, and rollback ownership",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Create a short promotion checklist covering source review, license and third-party notice review, component-lock verification, reproducible package rebuilds, live evidence, public-repository metadata, and rollback ownership.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Create a short promotion checklist covering source review, license and third-party notice review, component-lock verification, reproducible package rebuilds, live evidence, public-repository metadata, and rollback ownership.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-017",
+      "title": "Define the release evidence required for each optional path",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Define the release evidence required for each optional path: client-only, Sentinel/DCR, Azure VM, Intune, tenant-wide client AMA, and MDE Live Response.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Define the release evidence required for each optional path: client-only, Sentinel/DCR, Azure VM, Intune, tenant-wide client AMA, and MDE Live Response.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-018",
+      "title": "Add repository ownership metadata such as `CODEOWNERS` and confirm branch protection requires validation, CodeQL, dependency review, and at least one maintainer review before public releases",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Add repository ownership metadata such as `CODEOWNERS` and confirm branch protection requires validation, CodeQL, dependency review, and at least one maintainer review before public releases.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Add repository ownership metadata such as `CODEOWNERS` and confirm branch protection requires validation, CodeQL, dependency review, and at least one maintainer review before public releases.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior.",
+        "After separate authorization, retain redacted exact-target live evidence and cleanup results outside public Git. Do not execute live operations from this backlog alone."
+      ],
+      "dependencies": [],
+      "authorization": "publication",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-019",
+      "title": "Reconcile the public `azd-reference` consumer registry whenever the component version, source revision, or canonical repository metadata changes",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Reconcile the public `azd-reference` consumer registry whenever the component version, source revision, or canonical repository metadata changes.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Reconcile the public `azd-reference` consumer registry whenever the component version, source revision, or canonical repository metadata changes.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-020",
+      "title": "When Sysmon Modular or AMA publishes a new release, update the exact manifests and vendored/generated artifacts together, rebuild twice offline, review the diff, and record live compatibility results",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: When Sysmon Modular or AMA publishes a new release, update the exact manifests and vendored/generated artifacts together, rebuild twice offline, review the diff, and record live compatibility results.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "When Sysmon Modular or AMA publishes a new release, update the exact manifests and vendored/generated artifacts together, rebuild twice offline, review the diff, and record live compatibility results.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-021",
+      "title": "Review README, operations, identity, and validation documentation after each live test so known limits and endpoint behavior remain current",
+      "kind": "maintenance",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 1,
+      "problem": "Deferred existing follow-up: Review README, operations, identity, and validation documentation after each live test so known limits and endpoint behavior remain current.",
+      "scope": [
+        "scripts/",
+        "tests/",
+        "docs/",
+        ".github/workflows/"
+      ],
+      "acceptance": [
+        "Review README, operations, identity, and validation documentation after each live test so known limits and endpoint behavior remain current.",
+        "Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.",
+        "Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-022",
+      "title": "Evaluate common deployment-validation evidence for optional paths",
+      "kind": "discovery",
+      "priority": "P2",
+      "status": "proposed",
+      "wave": 2,
+      "problem": "Existing Graph authentication reuse does not yet standardize each optional-path readiness and endpoint gate.",
+      "scope": [
+        "scripts/",
+        "docs/",
+        "azd-components.lock.json"
+      ],
+      "acceptance": [
+        "Represent package-only, Intune, Azure VM, Sentinel and Live Response paths independently.",
+        "Compare deployment-validation and candidate receipts with existing owned-object cleanup before adopting.",
+        "Never present DCR association or an Intune success row as fresh Event/Heartbeat or effective endpoint installation."
+      ],
+      "validation": [
+        "From the solution root run ./scripts/Test-Repository.ps1",
+        "Run focused tests for changed behavior from tests/; fixtures do not prove live-service or endpoint behavior."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [
+        "deployment-validation",
+        "deployment-receipt"
+      ],
+      "sources": [
+        "README.md",
+        "TODO.md"
+      ],
+      "evidence": [],
+      "blocker": null
+    },
+    {
+      "id": "SYS-023",
+      "title": "Require a teardown decision before leaving tenant AMA association to deleted DCR",
+      "kind": "discovery",
+      "priority": "P1",
+      "status": "proposed",
+      "wave": 0,
+      "problem": "Open report captured 2026-10-03 during execution reconciliation. Another code-quality task may own an active fix; inspect its PR and current source before dispatch.",
+      "scope": [
+        "Linked issue and current source (read-only)",
+        "Repository-local backlog evidence"
+      ],
+      "acceptance": [
+        "Read the linked issue and current default branch; classify the exact defect, current owner and evidence gap.",
+        "Record a current PR or verified resolution before selecting any implementation; preserve broader feature and live acceptance gates."
+      ],
+      "validation": [
+        "Read current issue and PR state using nathanmcnulty; do not modify or close issues during reconciliation.",
+        "Inspect dirty state and worktrees; resolve the exact current revision and relevant offline commands before implementation."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "https://github.com/nathanmcnulty/azd-sysmon/issues/10"
+      ],
+      "evidence": [],
+      "blocker": null
+    }
+  ]
+}
