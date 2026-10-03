@@ -217,7 +217,25 @@ Describe 'Client AMA tenant binding' {
     }
 
     It 'rejects removal without an explicit tenant and subscription receipt binding' {
-        { & $clientEntry -Action Remove -AssociationName test -ConfirmTenantWideScope } | Should -Throw '*SubscriptionId must be the intended*'
+        { & $clientEntry -Action Remove -AssociationName test -DcrId $dcr -ConfirmTenantWideScope } | Should -Throw '*SubscriptionId must be the intended*'
+    }
+
+    It 'does not remove a same-name association bound to another DCR' {
+        Mock Invoke-RestMethod {
+            if ($Method -eq 'DELETE') { throw 'DELETE must not be attempted.' }
+            [pscustomobject]@{ StatusCode = 200; properties = @{ dataCollectionRuleId = '/subscriptions/11111111-1111-4111-8111-111111111111/resourceGroups/test/providers/Microsoft.Insights/dataCollectionRules/other' } }
+        }
+        { & $clientEntry -Action Remove -AssociationName test -DcrId $dcr -TenantId $tenant -SubscriptionId $subscription -ConfirmTenantWideScope } | Should -Throw '*points to another DCR*'
+        Should -Invoke Invoke-RestMethod -Times 0 -ParameterFilter { $Method -eq 'DELETE' }
+    }
+
+    It 'removes only the named association after confirming its recorded DCR binding' {
+        Mock Invoke-RestMethod {
+            if ($Method -eq 'GET') { return [pscustomobject]@{ StatusCode = 200; properties = @{ dataCollectionRuleId = $dcr } } }
+            [pscustomobject]@{ StatusCode = 204 }
+        }
+        { & $clientEntry -Action Remove -AssociationName test -DcrId $dcr -TenantId $tenant -SubscriptionId $subscription -ConfirmTenantWideScope } | Should -Not -Throw
+        Should -Invoke Invoke-RestMethod -Times 1 -Exactly -ParameterFilter { $Method -eq 'DELETE' -and $Uri -match '/dataCollectionRuleAssociations/test\?' }
     }
 
     It 'fails closed when Azure Resource Manager returns an error status without throwing' {

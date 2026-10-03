@@ -136,7 +136,13 @@ See [docs/operations.md](docs/operations.md) for the Event-table queries, heartb
 The tenant-wide client AMA association remains behind the explicit
 `AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION=true` and
 `AZD_SYSMON_CONFIRM_TENANT_SCOPE=I_UNDERSTAND_TENANT_WIDE_SCOPE` settings. The
-tenant monitored object itself is retained. If an object receipt is missing or
+tenant monitored object itself is retained. If its receipt says the named client
+AMA association may exist, `azd down` stops before cleanup unless those removal
+settings are present, or `AZD_SYSMON_ACKNOWLEDGE_DANGLING_CLIENT_AMA_ASSOCIATION`
+equals the exact recorded association name. The acknowledgment intentionally
+allows the AZD-owned DCR to be deleted while that association remains; verify and
+remove the association separately. `AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES=true`
+does not by itself acknowledge this dangling reference. If an object receipt is missing or
 its ownership marker has changed, `azd down` stops before deleting the AZD
 resource group so the operator can resolve the boundary safely.
 

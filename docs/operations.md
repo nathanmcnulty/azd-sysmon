@@ -96,4 +96,9 @@ subscription identities. It refuses to delete an object whose ownership marker,
 assignment, or recorded identifier no longer matches. Before client AMA cleanup,
 set both `AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION=true` and
 `AZD_SYSMON_CONFIRM_TENANT_SCOPE=I_UNDERSTAND_TENANT_WIDE_SCOPE`. Verify the
-recorded association name before running `azd down`.
+recorded association name before running `azd down`. If the association must
+remain, set `AZD_SYSMON_ACKNOWLEDGE_DANGLING_CLIENT_AMA_ASSOCIATION` to that
+exact receipt name. This permits DCR/resource-group deletion with a dangling
+tenant-wide association, so record the decision and remove the association
+separately. Without removal authorization or this exact acknowledgment,
+`azd down` stops before other external cleanup begins.

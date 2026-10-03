@@ -14,14 +14,14 @@ $ErrorActionPreference = 'Stop'
 if (-not $ConfirmTenantWideScope) {
     throw 'This operation changes a Microsoft Entra tenant-wide monitored-object association. Pass -ConfirmTenantWideScope only after reviewing the blast radius.'
 }
-if ($Action -eq 'Ensure' -and [string]::IsNullOrWhiteSpace($DcrId)) { throw 'DcrId is required for Ensure.' }
+if ([string]::IsNullOrWhiteSpace($DcrId)) { throw 'DcrId is required to bind the client AMA association to its recorded DCR.' }
 if ($Action -eq 'Ensure' -and [string]::IsNullOrWhiteSpace($DcrLocation)) { throw 'DcrLocation is required for Ensure.' }
-if ($Action -eq 'Ensure' -and $DcrId -notmatch '^/subscriptions/([^/]+)/resourceGroups/[^/]+/providers/Microsoft\.Insights/dataCollectionRules/[^/]+$') { throw 'DcrId must be a full data collection rule resource ID.' }
+if ($DcrId -notmatch '^/subscriptions/([^/]+)/resourceGroups/[^/]+/providers/Microsoft\.Insights/dataCollectionRules/[^/]+$') { throw 'DcrId must be a full data collection rule resource ID.' }
+$dcrSubscriptionId = $Matches[1]
 if ($Action -eq 'Ensure') {
-    $dcrSubscriptionId = $Matches[1]
     if ([string]::IsNullOrWhiteSpace($SubscriptionId)) { $SubscriptionId = $dcrSubscriptionId }
-    if ($SubscriptionId -ine $dcrSubscriptionId) { throw "SubscriptionId '$SubscriptionId' does not match the DCR subscription '$dcrSubscriptionId'." }
 }
+if (-not [string]::IsNullOrWhiteSpace($SubscriptionId) -and $SubscriptionId -ine $dcrSubscriptionId) { throw "SubscriptionId '$SubscriptionId' does not match the DCR subscription '$dcrSubscriptionId'." }
 if ([string]::IsNullOrWhiteSpace($SubscriptionId) -or $SubscriptionId -notmatch '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$') {
     throw 'SubscriptionId must be the intended Azure subscription GUID.'
 }
@@ -146,8 +146,16 @@ if ($Action -eq 'Ensure') {
     }
     Write-Host "Client AMA tenant-wide association '$AssociationName' is configured." -ForegroundColor Green
 } else {
-    Write-Host "Removing only association '$AssociationName' from $monitoredObjectId"
-    $deleted = Invoke-ArmRequest -Method DELETE -Path "$associationPath`?api-version=$associationApiVersion" -AllowNotFound
-    if ($null -eq $deleted) { Write-Host 'The association was already absent.' }
+    $association = Invoke-ArmRequest -Method GET -Path "$associationPath`?api-version=$associationApiVersion" -AllowNotFound
+    if ($null -eq $association) {
+        Write-Host 'The association was already absent.'
+    } else {
+        $existingAssociation = ConvertFrom-ArmContent -Response $association -ResourceName "association '$AssociationName'"
+        if ([string]$existingAssociation.properties.dataCollectionRuleId -ine $DcrId) {
+            throw "Association '$AssociationName' points to another DCR. Resolve the ownership collision before cleanup."
+        }
+        Write-Host "Removing only association '$AssociationName' from $monitoredObjectId"
+        Invoke-ArmRequest -Method DELETE -Path "$associationPath`?api-version=$associationApiVersion" | Out-Null
+    }
     Write-Host 'The monitored object itself was retained.' -ForegroundColor Green
 }

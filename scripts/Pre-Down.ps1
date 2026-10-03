@@ -66,13 +66,26 @@ if (-not (Test-Path -LiteralPath $statePath -PathType Leaf)) {
 }
 
 $state = Read-Receipt -Path $statePath
+$preserveExternal = ConvertTo-BooleanSetting (Get-AzdSetting 'AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES')
+$removeAdopted = ConvertTo-BooleanSetting (Get-AzdSetting 'AZD_SYSMON_REMOVE_ADOPTED_EXTERNAL_RESOURCES')
+$removeClientAma = ConvertTo-BooleanSetting (Get-AzdSetting 'AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION')
+$confirmed = (Get-AzdSetting 'AZD_SYSMON_CONFIRM_TENANT_SCOPE') -eq 'I_UNDERSTAND_TENANT_WIDE_SCOPE'
+$clientAmaMayExist = [bool]$state.clientAmaTenantScope -or [bool]$state.clientAmaAssociationAttempted
+if ($clientAmaMayExist) {
+    if ([string]$state.associationName -notmatch '^[A-Za-z0-9-]{1,64}$') {
+        throw 'The recorded client AMA association name is invalid; refusing to delete the AZD resource group.'
+    }
+    $acknowledgedName = Get-AzdSetting 'AZD_SYSMON_ACKNOWLEDGE_DANGLING_CLIENT_AMA_ASSOCIATION'
+    $removalAuthorized = -not $preserveExternal -and $removeClientAma -and $confirmed
+    if (-not $removalAuthorized -and $acknowledgedName -cne [string]$state.associationName) {
+        throw "Client AMA association '$($state.associationName)' may still refer to the AZD-owned DCR. Remove it with AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION=true and the tenant-scope confirmation, or set AZD_SYSMON_ACKNOWLEDGE_DANGLING_CLIENT_AMA_ASSOCIATION to that exact association name before azd down."
+    }
+}
 Write-Host 'azd-sysmon cleanup boundary' -ForegroundColor Cyan
 Write-Host '  azd down removes the AZD resource group, including the optional Sysmon DCR.'
 Write-Host '  Receipt-bound Intune objects, Defender Live Response files, and Azure VM DCR associations are removed here.'
 Write-Host '  The tenant monitored object is retained; its named association still requires the exact tenant-wide confirmation.'
 
-$preserveExternal = ConvertTo-BooleanSetting (Get-AzdSetting 'AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES')
-$removeAdopted = ConvertTo-BooleanSetting (Get-AzdSetting 'AZD_SYSMON_REMOVE_ADOPTED_EXTERNAL_RESOURCES')
 if ($preserveExternal) {
     Write-Warning 'AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES is enabled. Receipt-bound Intune, Defender, and client AMA objects will be retained. The VM association to the AZD-owned DCR is still removed to avoid leaving a dangling reference after the resource group is deleted.'
 } else {
@@ -121,17 +134,13 @@ if ($state.vmDcrAssociated) {
     $state.vmDcrAssociated = $false
 }
 
-$removeClientAma = ConvertTo-BooleanSetting (Get-AzdSetting 'AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION')
-$confirmed = (Get-AzdSetting 'AZD_SYSMON_CONFIRM_TENANT_SCOPE') -eq 'I_UNDERSTAND_TENANT_WIDE_SCOPE'
-if (-not $preserveExternal -and ($state.clientAmaTenantScope -or $state.clientAmaAssociationAttempted) -and $removeClientAma -and $confirmed) {
-    & (Join-Path $PSScriptRoot 'Set-ClientAmaScope.ps1') -Action Remove -AssociationName $state.associationName -TenantId $state.azureTenantId -SubscriptionId $state.azureSubscriptionId -ConfirmTenantWideScope
+if ($clientAmaMayExist -and -not $preserveExternal -and $removeClientAma -and $confirmed) {
+    & (Join-Path $PSScriptRoot 'Set-ClientAmaScope.ps1') -Action Remove -AssociationName $state.associationName -DcrId $state.dcrId -TenantId $state.azureTenantId -SubscriptionId $state.azureSubscriptionId -ConfirmTenantWideScope
     $state.clientAmaTenantScope = $false
     $state.clientAmaAssociationAttempted = $false
     Write-Host "Removed only the azd-sysmon client AMA DCR association '$($state.associationName)'." -ForegroundColor Green
-} elseif (-not $preserveExternal -and ($state.clientAmaTenantScope -or $state.clientAmaAssociationAttempted)) {
-    Write-Warning "Client AMA tenant-scope association '$($state.associationName)' was retained. Set AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION=true and AZD_SYSMON_CONFIRM_TENANT_SCOPE=I_UNDERSTAND_TENANT_WIDE_SCOPE to remove it before azd down."
-} elseif ($preserveExternal -and ($state.clientAmaTenantScope -or $state.clientAmaAssociationAttempted)) {
-    Write-Warning "Client AMA tenant-scope association '$($state.associationName)' was retained because AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES is enabled."
+} elseif ($clientAmaMayExist) {
+    Write-Warning "Client AMA tenant-scope association '$($state.associationName)' was retained with the exact dangling-association acknowledgment. Remove it manually before deleting its DCR when possible."
 }
 
 $state | Add-Member -MemberType NoteProperty -Name recordedUtc -Value ([DateTime]::UtcNow.ToString('o')) -Force

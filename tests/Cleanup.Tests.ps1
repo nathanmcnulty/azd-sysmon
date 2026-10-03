@@ -28,6 +28,7 @@ Describe 'azd down receipt cleanup' {
         $env:AZD_SYSMON_REMOVE_ADOPTED_EXTERNAL_RESOURCES = 'false'
         $env:AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION = 'false'
         $env:AZD_SYSMON_CONFIRM_TENANT_SCOPE = 'not-confirmed'
+        $env:AZD_SYSMON_ACKNOWLEDGE_DANGLING_CLIENT_AMA_ASSOCIATION = 'not-acknowledged'
     }
 
     AfterEach {
@@ -148,6 +149,71 @@ Add-Content -LiteralPath (Join-Path (Split-Path -Parent $StatePath) 'cleanup.log
 
         { & $preDown } | Should -Not -Throw
         (Get-Content -LiteralPath (Join-Path $receiptRoot 'azd-sysmon-state.json') -Raw | ConvertFrom-Json).recordedUtc | Should -Not -BeNullOrEmpty
+    }
+
+    It 'blocks resource-group teardown before other cleanup when the client association may remain' {
+        $statePath = Join-Path $receiptRoot 'azd-sysmon-state.json'
+        @{
+            template = 'azd-sysmon'; environmentName = 'cleanup-test'
+            associationName = 'azd-sysmon-cleanup-test'
+            clientAmaTenantScope = $true; clientAmaAssociationAttempted = $true
+            intuneRemediation = $true; vmDcrAssociated = $false
+        } | ConvertTo-Json | Set-Content -LiteralPath $statePath
+        $before = Get-Content -LiteralPath $statePath -Raw
+
+        { & $preDown } | Should -Throw '*Client AMA association*may still refer*'
+
+        (Get-Content -LiteralPath $statePath -Raw) | Should -BeExactly $before
+    }
+
+    It 'requires the exact association name to acknowledge a retained client association' {
+        $statePath = Join-Path $receiptRoot 'azd-sysmon-state.json'
+        $env:AZD_SYSMON_PRESERVE_EXTERNAL_RESOURCES = 'true'
+        @{
+            template = 'azd-sysmon'; environmentName = 'cleanup-test'
+            associationName = 'azd-sysmon-cleanup-test'
+            clientAmaTenantScope = $true; clientAmaAssociationAttempted = $true
+            vmDcrAssociated = $false
+        } | ConvertTo-Json | Set-Content -LiteralPath $statePath
+        $env:AZD_SYSMON_ACKNOWLEDGE_DANGLING_CLIENT_AMA_ASSOCIATION = 'another-association'
+        { & $preDown } | Should -Throw '*Client AMA association*may still refer*'
+
+        $env:AZD_SYSMON_ACKNOWLEDGE_DANGLING_CLIENT_AMA_ASSOCIATION = 'azd-sysmon-cleanup-test'
+        { & $preDown } | Should -Not -Throw
+        $state = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+        $state.clientAmaTenantScope | Should -BeTrue
+        $state.clientAmaAssociationAttempted | Should -BeTrue
+    }
+
+    It 'removes the exact client association before allowing teardown without an acknowledgment' {
+        $statePath = Join-Path $receiptRoot 'azd-sysmon-state.json'
+        $env:AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION = 'true'
+        $env:AZD_SYSMON_CONFIRM_TENANT_SCOPE = 'I_UNDERSTAND_TENANT_WIDE_SCOPE'
+        @{
+            template = 'azd-sysmon'; environmentName = 'cleanup-test'
+            azureSubscriptionId = '11111111-1111-4111-8111-111111111111'
+            azureTenantId = '22222222-2222-4222-8222-222222222222'
+            dcrId = '/subscriptions/11111111-1111-4111-8111-111111111111/resourceGroups/test/providers/Microsoft.Insights/dataCollectionRules/test'
+            associationName = 'azd-sysmon-cleanup-test'
+            clientAmaTenantScope = $true; clientAmaAssociationAttempted = $true
+            vmDcrAssociated = $false
+        } | ConvertTo-Json | Set-Content -LiteralPath $statePath
+        @'
+param($Action, $AssociationName, $DcrId, $TenantId, $SubscriptionId, [switch]$ConfirmTenantWideScope)
+if ($Action -ne 'Remove' -or $AssociationName -cne 'azd-sysmon-cleanup-test' -or
+    $DcrId -cne '/subscriptions/11111111-1111-4111-8111-111111111111/resourceGroups/test/providers/Microsoft.Insights/dataCollectionRules/test' -or
+    $TenantId -ne '22222222-2222-4222-8222-222222222222' -or
+    $SubscriptionId -ne '11111111-1111-4111-8111-111111111111' -or -not $ConfirmTenantWideScope) {
+    throw 'Unexpected client AMA cleanup target.'
+}
+Set-Content -LiteralPath (Join-Path $PSScriptRoot 'client-ama-removed') -Value 'yes'
+'@ | Set-Content -LiteralPath (Join-Path $scriptRoot 'Set-ClientAmaScope.ps1')
+
+        { & $preDown } | Should -Not -Throw
+        Test-Path -LiteralPath (Join-Path $scriptRoot 'client-ama-removed') | Should -BeTrue
+        $state = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+        $state.clientAmaTenantScope | Should -BeFalse
+        $state.clientAmaAssociationAttempted | Should -BeFalse
     }
 
     It 'removes the AZD-owned VM association even when tenant resources are preserved' {
