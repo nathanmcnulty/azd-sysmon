@@ -1,5 +1,10 @@
 # azd-sysmon follow-up work
 
+> Task tracking moved to [the standardized backlog](docs/backlog.md) and its
+> [canonical JSON](docs/backlog.json). Each unchecked follow-up below has its
+> own backlog item. Keep this file as the original evidence-bound plan; update
+> task status and completion evidence in the backlog.
+
 This list records work deferred after the September 2026 public-repository
 validation. The current baseline has passed repository validation, live client
 Intune/Sentinel validation, live client AMA-association cleanup, and a repeated
