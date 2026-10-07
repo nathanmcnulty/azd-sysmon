@@ -1111,7 +1111,7 @@ Deferred existing follow-up&colon; Rehearse a partial-failure recovery&colon; in
 
 Review SYS-008 against the current repository state. Its status or authorization class is not eligible for an actionable generated handoff. Do not claim or execute it without explicit selection, satisfied dependencies, and every required authorization. Never interpret this generated view as approval.
 
-## SYS-009: Measure the canary&&num;39;s event volume by event ID, review privacy and cost, and decide whether the broad Sysmon XPath should be narrowed for each supported configuration
+## SYS-009: Measure the canary&#39;s event volume by event ID, review privacy and cost, and decide whether the broad Sysmon XPath should be narrowed for each supported configuration
 
 - **Kind:** verification
 - **Priority:** P1
@@ -1123,7 +1123,7 @@ Review SYS-008 against the current repository state. Its status or authorization
 
 **Problem:**
 
-Deferred existing follow-up&colon; Measure the canary&&num;39;s event volume by event ID, review privacy and cost, and decide whether the broad Sysmon XPath should be narrowed for each supported configuration.
+Deferred existing follow-up&colon; Measure the canary&#39;s event volume by event ID, review privacy and cost, and decide whether the broad Sysmon XPath should be narrowed for each supported configuration.
 
 **Scope:**
 
@@ -1134,7 +1134,7 @@ Deferred existing follow-up&colon; Measure the canary&&num;39;s event volume by 
 
 **Acceptance:**
 
-- Measure the canary&&num;39;s event volume by event ID, review privacy and cost, and decide whether the broad Sysmon XPath should be narrowed for each supported configuration.
+- Measure the canary&#39;s event volume by event ID, review privacy and cost, and decide whether the broad Sysmon XPath should be narrowed for each supported configuration.
 - Record exact revision, target class, commands/queries, observed result and cleanup; keep tenant/device identifiers and credentials outside Git.
 - Do not expand assignment, reboot, cleanup, issue creation or required-check scope without explicit authorization.
 
