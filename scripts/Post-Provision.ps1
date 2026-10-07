@@ -4,6 +4,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $templateRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'Azd.Receipt.ps1')
 
 function Get-AzdSetting {
     param([Parameter(Mandatory)][string]$Name)
@@ -50,7 +51,7 @@ $tenantId = Get-AzdSetting 'AZURE_TENANT_ID'
 $statePath = Get-EnvironmentStatePath $environmentName
 $previousClientAmaAssociation = $false
 if (Test-Path -LiteralPath $statePath -PathType Leaf) {
-    $previousState = Get-Content -LiteralPath $statePath -Raw | ConvertFrom-Json
+    $previousState = Read-AzdJsonReceipt -Path $statePath
     if ($previousState.template -ne 'azd-sysmon' -or $previousState.environmentName -ne $environmentName) {
         throw "The existing state receipt at '$statePath' does not belong to this AZD environment."
     }
@@ -99,9 +100,7 @@ $state = [ordered]@{
 }
 function Write-DeploymentState {
     $state.recordedUtc = [DateTime]::UtcNow.ToString('o')
-    $stateDirectory = Split-Path -Parent $statePath
-    New-Item -ItemType Directory -Path $stateDirectory -Force | Out-Null
-    $state | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $statePath -Encoding UTF8
+    Write-AzdJsonReceipt -Path $statePath -InputObject $state -Depth 6
 }
 
 $vmSetting = Get-AzdSetting 'AZD_SYSMON_AZURE_VM_RESOURCE_IDS'

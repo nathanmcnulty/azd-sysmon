@@ -15,6 +15,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $templateRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'Azd.Receipt.ps1')
 if ([string]::IsNullOrWhiteSpace($ManifestPath)) { $ManifestPath = Join-Path $templateRoot 'config\ama-client-release.json' }
 if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) { throw "AMA release manifest was not found: $ManifestPath" }
 $release = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
@@ -256,7 +257,7 @@ function Write-AmaState {
         adoptedExisting = $AdoptedExisting
         status = $Status
         recordedUtc = [DateTime]::UtcNow.ToString('o')
-    } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $stateRoot 'azd-sysmon-ama-application-state.json') -Encoding UTF8
+    } | Write-AzdJsonReceipt -Path (Join-Path $stateRoot 'azd-sysmon-ama-application-state.json') -Depth 4
 }
 
 function Upload-EncryptedBlob {

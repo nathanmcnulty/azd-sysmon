@@ -11,6 +11,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Azd.Receipt.ps1')
 if (-not (Test-Path -LiteralPath $ScriptPath -PathType Leaf)) { throw "Live Response script not found: $ScriptPath" }
 if ((Get-Item -LiteralPath $ScriptPath).Length -gt 20MB) { throw 'The Live Response library upload exceeds the documented 20 MB API limit.' }
 if (-not (Get-Command az -ErrorAction SilentlyContinue)) { throw 'Azure CLI is required for its cached browser/WAM access token.' }
@@ -100,7 +101,7 @@ try {
         adoptedExisting = [bool]($libraryFiles.Count -eq 1 -and $AdoptExisting)
         status = 'published'
         recordedUtc = [DateTime]::UtcNow.ToString('o')
-    } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $stateRoot 'azd-sysmon-live-response-state.json') -Encoding UTF8
+    } | Write-AzdJsonReceipt -Path (Join-Path $stateRoot 'azd-sysmon-live-response-state.json') -Depth 4
     Write-Host "Published $fileName to the Defender Live Response library." -ForegroundColor Green
 } finally {
     $multipart.Dispose()

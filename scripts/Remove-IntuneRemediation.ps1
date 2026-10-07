@@ -8,7 +8,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$state = Get-Content -LiteralPath $StatePath -Raw | ConvertFrom-Json
+. (Join-Path $PSScriptRoot 'Azd.Receipt.ps1')
+$state = Read-AzdJsonReceipt -Path $StatePath
 if ($state.template -ne 'azd-sysmon' -or $state.objectType -ne 'intune-device-health-script') {
     throw "The Intune remediation receipt '$StatePath' does not belong to azd-sysmon."
 }
@@ -65,7 +66,7 @@ function Get-GraphCollection {
 function Write-RemovedState {
     $state.status = 'removed'
     $state | Add-Member -MemberType NoteProperty -Name removedUtc -Value ([DateTime]::UtcNow.ToString('o')) -Force
-    $state | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $StatePath -Encoding UTF8
+    Write-AzdJsonReceipt -Path $StatePath -InputObject $state -Depth 6
 }
 
 $target = $null

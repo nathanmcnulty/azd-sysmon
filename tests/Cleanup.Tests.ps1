@@ -17,6 +17,7 @@ Describe 'azd down receipt cleanup' {
         $receiptRoot = Join-Path $root '.azure/cleanup-test'
         New-Item -ItemType Directory -Path $scriptRoot, $receiptRoot -Force | Out-Null
         Copy-Item (Join-Path $sourceRoot 'scripts/Pre-Down.ps1') (Join-Path $scriptRoot 'Pre-Down.ps1')
+        Copy-Item (Join-Path $sourceRoot 'scripts/Azd.Receipt.ps1') (Join-Path $scriptRoot 'Azd.Receipt.ps1')
         $script:preDown = Join-Path $scriptRoot 'Pre-Down.ps1'
         $script:savedEnvironment = @{}
         Get-ChildItem Env: | Where-Object { $_.Name -match '^AZD_SYSMON_|^AZURE_' } | ForEach-Object {
@@ -123,6 +124,55 @@ Add-Content -LiteralPath (Join-Path (Split-Path -Parent $StatePath) 'cleanup.log
             $state | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $receiptRoot 'azd-sysmon-state.json')
 
             { & $preDown } | Should -Throw "*$($case.message)*object receipt is missing*"
+        }
+    }
+
+    It 'rejects a corrupt main receipt before dispatching cleanup' {
+        $statePath = Join-Path $receiptRoot 'azd-sysmon-state.json'
+        [IO.File]::WriteAllText($statePath, 'not-json')
+        $before = [IO.File]::ReadAllBytes($statePath)
+
+        { & $preDown } | Should -Throw '*invalid or truncated JSON*'
+
+        [Convert]::ToBase64String([IO.File]::ReadAllBytes($statePath)) | Should -BeExactly ([Convert]::ToBase64String($before))
+        Test-Path -LiteralPath (Join-Path $receiptRoot 'cleanup.log') | Should -BeFalse
+    }
+
+    It 'rejects corrupt child receipts before provider cleanup' {
+        foreach ($helper in 'Remove-IntuneRemediation.ps1', 'Remove-IntuneAmaApplication.ps1', 'Remove-LiveResponseScript.ps1') {
+            Copy-Item (Join-Path $sourceRoot "scripts/$helper") (Join-Path $scriptRoot $helper)
+        }
+
+        foreach ($case in @(
+            @{ flag = 'intuneRemediation'; file = 'azd-sysmon-intune-state.json' }
+            @{ flag = 'intuneAmaApplication'; file = 'azd-sysmon-ama-application-state.json' }
+            @{ flag = 'liveResponseLibrary'; file = 'azd-sysmon-live-response-state.json' }
+        )) {
+            Get-ChildItem -LiteralPath $receiptRoot -File | Remove-Item -Force
+            $state = @{
+                template = 'azd-sysmon'
+                environmentName = 'cleanup-test'
+                azureSubscriptionId = '11111111-1111-4111-8111-111111111111'
+                azureTenantId = '22222222-2222-4222-8222-222222222222'
+                intuneRemediation = $false
+                intuneAmaApplication = $false
+                liveResponseLibrary = $false
+                vmDcrAssociated = $false
+                clientAmaTenantScope = $false
+                clientAmaAssociationAttempted = $false
+            }
+            $state[$case.flag] = $true
+            $statePath = Join-Path $receiptRoot 'azd-sysmon-state.json'
+            $state | ConvertTo-Json | Set-Content -LiteralPath $statePath
+            $childPath = Join-Path $receiptRoot $case.file
+            [IO.File]::WriteAllText($childPath, '{"template":')
+            $stateBefore = [IO.File]::ReadAllBytes($statePath)
+            $childBefore = [IO.File]::ReadAllBytes($childPath)
+
+            { & $preDown } | Should -Throw '*invalid or truncated JSON*'
+
+            [Convert]::ToBase64String([IO.File]::ReadAllBytes($statePath)) | Should -BeExactly ([Convert]::ToBase64String($stateBefore))
+            [Convert]::ToBase64String([IO.File]::ReadAllBytes($childPath)) | Should -BeExactly ([Convert]::ToBase64String($childBefore))
         }
     }
 

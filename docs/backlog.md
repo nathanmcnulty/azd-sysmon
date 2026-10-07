@@ -5,7 +5,7 @@
 
 - **Schema version:** 1.0.0
 - **Repository:** nathanmcnulty/azd-sysmon
-- **Source revision:** `5f3f185a72fce107e9b97373d922342a5f8e3afd`
+- **Source revision:** `719915e6adb36881085a0aad2275c45933490edb`
 - **Captured:** 2026-10-04
 - **Items:** 23
 
@@ -222,7 +222,7 @@ Review SYS-011 against the current repository state. Its status or authorization
 
 - **Kind:** maintenance
 - **Priority:** P2
-- **Status:** proposed
+- **Status:** done
 - **Wave:** 1
 - **Authorization:** local-only
 - **Blocker:** _none_
@@ -264,7 +264,9 @@ Deferred existing follow-up&colon; Add tests for truncated or corrupt JSON recei
 
 **Evidence:**
 
-- _none_
+- 2026-10-07 reviewed source implementation on base 719915e6adb36881085a0aad2275c45933490edb and exact source/test tree f749e178de63fdc10fa59730962b5c0e4c5fa690&colon; the four environment-scoped AZD ownership receipts now use a PowerShell 5.1-compatible helper that writes and flushes a unique same-directory candidate, validates its JSON, then uses filesystem replacement with a stable .previous version. First writes use a same-directory move. Corrupt or truncated primary receipts fail closed; .previous and candidate files require explicit operator review and are never loaded automatically. A failed replacement preserves the original receipt and its validated candidate.
+- Focused Invoke-Pester coverage passed 41/41 for receipt, deployment and cleanup behavior. Receipt.Tests.ps1 passed 6/6 independently, including native Windows PowerShell 5.1 first-write/read/repeated-replacement coverage, immediate .previous rotation, locked-target failure preservation, corrupt and truncated JSON rejection, and no automatic recovery. The test fixtures cover the main deployment receipt plus Intune remediation, Intune AMA application and Defender Live Response child receipts.
+- ./scripts/Test-Repository.ps1 passed static validation, deterministic package checks and 74/74 Pester tests. PSScriptAnalyzer reported zero error-severity findings across the changed PowerShell files, git diff --check passed, and azd-components.lock.json plus generated endpoint/package files remained byte-identical to origin/main. No cloud query, provider mutation, assignment, reboot, external cleanup or endpoint action was run; temporary test receipts were isolated to Pester TestDrive and removed by the test harness.
 
 **Review and authorization note:**
 
