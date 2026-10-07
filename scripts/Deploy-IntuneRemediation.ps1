@@ -12,6 +12,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $templateRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'Azd.Receipt.ps1')
 $remediationPath = Join-Path $templateRoot 'deploy\intune\Remediate-Sysmon.ps1'
 $detectionPath = Join-Path $templateRoot 'deploy\intune\Detect-Sysmon.ps1'
 $packageManifestPath = Join-Path $templateRoot 'config\generated-package-manifest.json'
@@ -95,7 +96,7 @@ function Write-IntuneState {
         adoptedExisting = $AdoptedExisting
         status = $Status
         recordedUtc = [DateTime]::UtcNow.ToString('o')
-    } | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $stateRoot 'azd-sysmon-intune-state.json') -Encoding UTF8
+    } | Write-AzdJsonReceipt -Path (Join-Path $stateRoot 'azd-sysmon-intune-state.json') -Depth 4
 }
 
 $baseUri = 'https://graph.microsoft.com/beta/deviceManagement/deviceHealthScripts'

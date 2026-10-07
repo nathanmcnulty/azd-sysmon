@@ -4,6 +4,7 @@ param()
 
 $ErrorActionPreference = 'Stop'
 $templateRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'Azd.Receipt.ps1')
 
 function ConvertTo-BooleanSetting {
     param([string]$Value)
@@ -30,7 +31,7 @@ function Get-StatePath {
 function Read-Receipt {
     param([Parameter(Mandatory)][string]$Path)
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $null }
-    $receipt = Get-Content -LiteralPath $Path -Raw | ConvertFrom-Json
+    $receipt = Read-AzdJsonReceipt -Path $Path
     if ($receipt.template -ne 'azd-sysmon' -or $receipt.environmentName -ne $environmentName) {
         throw "The state receipt at '$Path' does not belong to the selected AZD environment."
     }
@@ -144,4 +145,4 @@ if ($clientAmaMayExist -and -not $preserveExternal -and $removeClientAma -and $c
 }
 
 $state | Add-Member -MemberType NoteProperty -Name recordedUtc -Value ([DateTime]::UtcNow.ToString('o')) -Force
-$state | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $statePath -Encoding UTF8
+Write-AzdJsonReceipt -Path $statePath -InputObject $state -Depth 8

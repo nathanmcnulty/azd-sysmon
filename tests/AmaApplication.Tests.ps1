@@ -10,6 +10,7 @@ Describe 'Azure Monitor Agent Intune publisher' {
         $root = Join-Path $TestDrive ([guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path "$root/scripts/vendor/Azd.GraphAuthentication", "$root/config", "$root/.artifacts/ama" -Force | Out-Null
         Copy-Item "$sourceRoot/scripts/Deploy-IntuneAmaApplication.ps1" "$root/scripts/"
+        Copy-Item "$sourceRoot/scripts/Azd.Receipt.ps1" "$root/scripts/"
         Copy-Item "$sourceRoot/config/ama-client-release.json" "$root/config/"
         New-Item -ItemType File -Path "$root/.artifacts/ama/AzureMonitorAgentClientSetup-1.44.0.0.msi" | Out-Null
         $script:entry = "$root/scripts/Deploy-IntuneAmaApplication.ps1"

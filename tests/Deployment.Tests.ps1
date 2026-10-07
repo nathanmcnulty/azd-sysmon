@@ -87,6 +87,7 @@ Describe 'Environment-specific deployment receipts' {
         New-Item -ItemType Directory -Path "$root/scripts" -Force | Out-Null
         Copy-Item "$sourceRoot/scripts/Post-Provision.ps1" "$root/scripts/"
         Copy-Item "$sourceRoot/scripts/Pre-Down.ps1" "$root/scripts/"
+        Copy-Item "$sourceRoot/scripts/Azd.Receipt.ps1" "$root/scripts/"
         $script:post = "$root/scripts/Post-Provision.ps1"
         $script:preDown = "$root/scripts/Pre-Down.ps1"
         $script:saved = @{}
@@ -185,6 +186,18 @@ param(
         @{ template = 'azd-sysmon'; environmentName = 'another-environment' } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $receiptDir 'azd-sysmon-state.json')
         { & $preDown } | Should -Throw '*does not belong to the selected AZD environment*'
     }
+
+    It 'rejects a truncated deployment receipt before post-provision can replace it' {
+        $receiptDir = Join-Path $root '.azure/isolated-review'
+        $receiptPath = Join-Path $receiptDir 'azd-sysmon-state.json'
+        New-Item -ItemType Directory -Path $receiptDir -Force | Out-Null
+        [IO.File]::WriteAllText($receiptPath, '{"template":"azd-sysmon"')
+        $before = [IO.File]::ReadAllBytes($receiptPath)
+
+        { & $post } | Should -Throw '*invalid or truncated JSON*'
+
+        [Convert]::ToBase64String([IO.File]::ReadAllBytes($receiptPath)) | Should -BeExactly ([Convert]::ToBase64String($before))
+    }
 }
 
 Describe 'Client AMA tenant binding' {
@@ -274,6 +287,7 @@ Describe 'MDE library publishing boundaries' {
         $root = Join-Path $TestDrive ([guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path "$root/scripts", "$root/deploy/live-response" -Force | Out-Null
         Copy-Item "$sourceRoot/scripts/Publish-LiveResponseScript.ps1" "$root/scripts/"
+        Copy-Item "$sourceRoot/scripts/Azd.Receipt.ps1" "$root/scripts/"
         Set-Content -LiteralPath "$root/deploy/live-response/Install-Sysmon.ps1" -Value 'Write-Output test'
         $script:entry = "$root/scripts/Publish-LiveResponseScript.ps1"
         $script:scriptPath = "$root/deploy/live-response/Install-Sysmon.ps1"

@@ -9,6 +9,7 @@ Describe 'Intune publishing boundaries' {
         $root = Join-Path $TestDrive ([guid]::NewGuid().ToString('N'))
         New-Item -ItemType Directory -Path "$root/scripts", "$root/config", "$root/deploy/intune" -Force | Out-Null
         Copy-Item "$sourceRoot/scripts/Deploy-IntuneRemediation.ps1" "$root/scripts/"
+        Copy-Item "$sourceRoot/scripts/Azd.Receipt.ps1" "$root/scripts/"
         Copy-Item "$sourceRoot/config/generated-package-manifest.json" "$root/config/"
         Copy-Item "$sourceRoot/deploy/intune/*.ps1" "$root/deploy/intune/"
         $script:entry = "$root/scripts/Deploy-IntuneRemediation.ps1"
