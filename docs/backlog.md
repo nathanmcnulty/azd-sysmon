@@ -276,11 +276,14 @@ Review SYS-012 against the current repository state. Its status or authorization
 
 - **Kind:** maintenance
 - **Priority:** P2
-- **Status:** proposed
+- **Status:** in-progress
 - **Wave:** 1
 - **Authorization:** local-only
 - **Blocker:** _none_
-- **Claim:** _none_
+- **Claim owner:** Codex
+- **Claim worktree:** E&colon;&bsol;azd-reconciliation-20261004&bsol;azd-sysmon
+- **Claim base revision:** `0f485ba02fb19b63bf2b819487f4eebd2090c280`
+- **Claim started:** 10/07/2026 00&colon;00&colon;00
 
 **Problem:**
 
@@ -318,7 +321,8 @@ Deferred existing follow-up&colon; Add a test matrix for the supported PowerShel
 
 **Evidence:**
 
-- _none_
+- Implementation branch codex/sysmon-runtime-matrix-20261007 is based on 0f485ba02fb19b63bf2b819487f4eebd2090c280; local source validation passed with 74 Pester tests, static validation, and package validation.
+- Official PowerShell v7.2.24 win-x64 portable archive was downloaded from its immutable release URL and verified locally against SHA-256 a1ccb6d8ad52f917470a136c3752af4465f261bcbe570cf44f52aa69ae6e867e; hosted matrix evidence remains pending.
 
 **Review and authorization note:**
 

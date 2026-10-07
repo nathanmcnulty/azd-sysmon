@@ -412,7 +412,7 @@
       "title": "Add a test matrix for the supported PowerShell versions and Windows environments, including the minimum documented PowerShell 7.2 runtime",
       "kind": "maintenance",
       "priority": "P2",
-      "status": "proposed",
+      "status": "in-progress",
       "wave": 1,
       "problem": "Deferred existing follow-up: Add a test matrix for the supported PowerShell versions and Windows environments, including the minimum documented PowerShell 7.2 runtime.",
       "scope": [
@@ -436,8 +436,17 @@
       "sources": [
         "TODO.md"
       ],
-      "evidence": [],
-      "blocker": null
+      "evidence": [
+        "Implementation branch codex/sysmon-runtime-matrix-20261007 is based on 0f485ba02fb19b63bf2b819487f4eebd2090c280; local source validation passed with 74 Pester tests, static validation, and package validation.",
+        "Official PowerShell v7.2.24 win-x64 portable archive was downloaded from its immutable release URL and verified locally against SHA-256 a1ccb6d8ad52f917470a136c3752af4465f261bcbe570cf44f52aa69ae6e867e; hosted matrix evidence remains pending."
+      ],
+      "blocker": null,
+      "claim": {
+        "owner": "Codex",
+        "worktree": "E:\\azd-reconciliation-20261004\\azd-sysmon",
+        "baseRevision": "0f485ba02fb19b63bf2b819487f4eebd2090c280",
+        "startedAt": "2026-10-07T00:00:00Z"
+      }
     },
     {
       "id": "SYS-014",
