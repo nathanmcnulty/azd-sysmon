@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0.0",
   "repository": "nathanmcnulty/azd-sysmon",
-  "sourceRevision": "719915e6adb36881085a0aad2275c45933490edb",
-  "capturedAt": "2026-10-04",
+  "sourceRevision": "c20bbdb63e03279aec524ead39cdf1359ebc5701",
+  "capturedAt": "2026-10-07",
   "items": [
     {
       "id": "SYS-001",
@@ -509,7 +509,7 @@
       "title": "Create a short promotion checklist covering source review, license and third-party notice review, component-lock verification, reproducible package rebuilds, live evidence, public-repository metadata, and rollback ownership",
       "kind": "maintenance",
       "priority": "P2",
-      "status": "proposed",
+      "status": "done",
       "wave": 1,
       "problem": "Deferred existing follow-up: Create a short promotion checklist covering source review, license and third-party notice review, component-lock verification, reproducible package rebuilds, live evidence, public-repository metadata, and rollback ownership.",
       "scope": [
@@ -533,7 +533,11 @@
       "sources": [
         "TODO.md"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-10-07 on base c20bbdb63e03279aec524ead39cdf1359ebc5701, added docs/release-evidence.md with a bounded source, license/notice, immutable component-lock, reproducible-build, live-evidence, public-metadata, independent-review, and rollback-owner promotion checklist. It requires private evidence for tenant/device/provider material and keeps live acceptance, grants, assignment, reboot, cleanup, release, and enforcement claims pending.",
+        "The checklist records exact existing commands and queries, input/output hash requirements, raw Git-index versus working-tree hash distinction, fresh retry directories, and receipt-bound rollback limits. README links the guide; no runtime, test, workflow, component pin, or historical validation record changed.",
+        "Final documentation packet validated with pwsh -File ./scripts/Test-Repository.ps1: 74 tests passed with no failures. Canonical backlog schema and generated-view checks passed; script parameters and literal evidence-query boundaries were checked against current source. This is offline source and mocked-contract evidence only; no live target, grant, assignment, cleanup or release operation ran."
+      ],
       "blocker": null
     },
     {
@@ -541,7 +545,7 @@
       "title": "Define the release evidence required for each optional path",
       "kind": "maintenance",
       "priority": "P2",
-      "status": "proposed",
+      "status": "done",
       "wave": 1,
       "problem": "Deferred existing follow-up: Define the release evidence required for each optional path: client-only, Sentinel/DCR, Azure VM, Intune, tenant-wide client AMA, and MDE Live Response.",
       "scope": [
@@ -565,7 +569,11 @@
       "sources": [
         "TODO.md"
       ],
-      "evidence": [],
+      "evidence": [
+        "2026-10-07 on base c20bbdb63e03279aec524ead39cdf1359ebc5701, defined docs/release-evidence.md path-specific evidence gates for client-only, Sentinel/DCR, Azure VM, Intune, tenant-wide client AMA, and MDE Live Response. Each row distinguishes control-plane/API/readback evidence from fresh endpoint, ingestion, execution, and human-visible proof.",
+        "Recorded existing script parameter names and Event/Heartbeat Kusto queries, private/public redaction boundaries, target class and cleanup requirements, and historical limits from docs/validation.md. No live operation, tenant mutation, assignment, reboot, cleanup, publication, or enforcement action was performed.",
+        "Final documentation packet validated with pwsh -File ./scripts/Test-Repository.ps1: 74 tests passed with no failures. Canonical backlog schema and generated-view checks passed; script parameters and literal evidence-query boundaries were checked against current source. This is offline source and mocked-contract evidence only; no live target, grant, assignment, cleanup or release operation ran."
+      ],
       "blocker": null
     },
     {

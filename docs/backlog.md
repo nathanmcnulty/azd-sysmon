@@ -5,8 +5,8 @@
 
 - **Schema version:** 1.0.0
 - **Repository:** nathanmcnulty/azd-sysmon
-- **Source revision:** `719915e6adb36881085a0aad2275c45933490edb`
-- **Captured:** 2026-10-04
+- **Source revision:** `c20bbdb63e03279aec524ead39cdf1359ebc5701`
+- **Captured:** 2026-10-07
 - **Items:** 23
 
 ## SYS-001: Reconcile this backlog with current source and active work
@@ -433,7 +433,7 @@ Review SYS-015 against the current repository state. Its status or authorization
 
 - **Kind:** maintenance
 - **Priority:** P2
-- **Status:** proposed
+- **Status:** done
 - **Wave:** 1
 - **Authorization:** local-only
 - **Blocker:** _none_
@@ -475,7 +475,9 @@ Deferred existing follow-up&colon; Create a short promotion checklist covering s
 
 **Evidence:**
 
-- _none_
+- 2026-10-07 on base c20bbdb63e03279aec524ead39cdf1359ebc5701, added docs/release-evidence.md with a bounded source, license/notice, immutable component-lock, reproducible-build, live-evidence, public-metadata, independent-review, and rollback-owner promotion checklist. It requires private evidence for tenant/device/provider material and keeps live acceptance, grants, assignment, reboot, cleanup, release, and enforcement claims pending.
+- The checklist records exact existing commands and queries, input/output hash requirements, raw Git-index versus working-tree hash distinction, fresh retry directories, and receipt-bound rollback limits. README links the guide; no runtime, test, workflow, component pin, or historical validation record changed.
+- Final documentation packet validated with pwsh -File ./scripts/Test-Repository.ps1&colon; 74 tests passed with no failures. Canonical backlog schema and generated-view checks passed; script parameters and literal evidence-query boundaries were checked against current source. This is offline source and mocked-contract evidence only; no live target, grant, assignment, cleanup or release operation ran.
 
 **Review and authorization note:**
 
@@ -485,7 +487,7 @@ Review SYS-016 against the current repository state. Its status or authorization
 
 - **Kind:** maintenance
 - **Priority:** P2
-- **Status:** proposed
+- **Status:** done
 - **Wave:** 1
 - **Authorization:** local-only
 - **Blocker:** _none_
@@ -527,7 +529,9 @@ Deferred existing follow-up&colon; Define the release evidence required for each
 
 **Evidence:**
 
-- _none_
+- 2026-10-07 on base c20bbdb63e03279aec524ead39cdf1359ebc5701, defined docs/release-evidence.md path-specific evidence gates for client-only, Sentinel/DCR, Azure VM, Intune, tenant-wide client AMA, and MDE Live Response. Each row distinguishes control-plane/API/readback evidence from fresh endpoint, ingestion, execution, and human-visible proof.
+- Recorded existing script parameter names and Event/Heartbeat Kusto queries, private/public redaction boundaries, target class and cleanup requirements, and historical limits from docs/validation.md. No live operation, tenant mutation, assignment, reboot, cleanup, publication, or enforcement action was performed.
+- Final documentation packet validated with pwsh -File ./scripts/Test-Repository.ps1&colon; 74 tests passed with no failures. Canonical backlog schema and generated-view checks passed; script parameters and literal evidence-query boundaries were checked against current source. This is offline source and mocked-contract evidence only; no live target, grant, assignment, cleanup or release operation ran.
 
 **Review and authorization note:**
 
