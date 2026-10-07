@@ -164,6 +164,7 @@ current configuration.
 | AMA MSI application packaging | [docs/ama-client-application.md](docs/ama-client-application.md) |
 | Rebuilding packages and validation | [docs/development.md](docs/development.md) |
 | Live validation record and limits | [docs/validation.md](docs/validation.md) |
+| Promotion checklist and optional-path evidence | [docs/release-evidence.md](docs/release-evidence.md) |
 | Safe agent-assisted deployment checkpoints | [docs/agent-assisted-deployment.md](docs/agent-assisted-deployment.md) |
 
 ## Security and license
