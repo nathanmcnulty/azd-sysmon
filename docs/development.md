@@ -18,6 +18,25 @@ pwsh -File .\scripts\Test-Repository.ps1
 
 Install Pester 5.7.1 and Azure CLI with Bicep before running validation. It checks PowerShell parsing, the DCR contract, Bicep compilation, generated script integrity and size, vendored component hashes, and behavioral tests using mocked service boundaries. These checks do not authenticate or deploy.
 
+The validation workflow runs a four-cell matrix before the existing terminal
+`validate` job. The terminal job keeps its existing check identity and fails
+when any matrix leg fails or is cancelled. The matrix runs the
+same static, package, and behavioral checks across a four-cell Windows matrix:
+`windows-2022` and `windows-2025`, each with the hosted runner `pwsh` and a
+portable PowerShell 7.2.24 runtime. The portable runtime is downloaded from
+the immutable official PowerShell v7.2.24 release URL, checked against its
+published SHA-256 (`A1CCB6D8AD52F917470A136C3752AF4465F261BCBE570CF44F52AA69AE6E867E`),
+and version-checked before it runs repository tests. This proves source and
+CI behavior on those hosted environments; it does not prove a Windows 11
+endpoint, Sysmon installation, or live Azure/Intune behavior. PowerShell
+7.2.24 is retained as an archived compatibility floor for this matrix, not as
+a current security or support recommendation. Each matrix leg rebuilds the
+offline package twice and compares generated manifest and script hashes within
+that runtime. ZIP bytes can differ between PowerShell 7.2 and the hosted
+current runtime because `Compress-Archive` serialization differs; the
+terminal `validate` job remains the canonical tracked-byte reproducibility
+check.
+
 ## Test order
 
 1. Inspect the generated diff and release hashes.

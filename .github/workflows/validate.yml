@@ -8,12 +8,19 @@ permissions:
   contents: read
 jobs:
   validate:
+    needs: runtime_matrix
+    if: ${{ always() }}
     runs-on: windows-latest
     timeout-minutes: 20
     defaults:
       run:
         shell: pwsh
     steps:
+      - name: Require runtime matrix success
+        env:
+          MATRIX_RESULT: ${{ needs.runtime_matrix.result }}
+        run: |
+          if ($env:MATRIX_RESULT -ne 'success') { throw "PowerShell runtime matrix result was '$env:MATRIX_RESULT'." }
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install test dependencies
         run: |
@@ -27,3 +34,83 @@ jobs:
           ./scripts/Build-SysmonPackages.ps1
           git diff --exit-code
           if ($LASTEXITCODE -ne 0) { throw 'Package rebuild changed tracked content.' }
+  runtime_matrix:
+    name: PowerShell ${{ matrix.runtime }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            runtime: runner
+          - os: windows-2022
+            runtime: 7.2.24
+          - os: windows-2025
+            runtime: runner
+          - os: windows-2025
+            runtime: 7.2.24
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Select PowerShell runtime
+        id: runtime
+        run: |
+          if ('${{ matrix.runtime }}' -eq 'runner') {
+            "path=pwsh" >> $env:GITHUB_OUTPUT
+            exit 0
+          }
+          $runtimeRoot = Join-Path $env:RUNNER_TEMP "powershell-${{ matrix.runtime }}"
+          $runtimePath = & ./scripts/Install-PowerShellRuntime.ps1 -OutputDirectory $runtimeRoot
+          "path=$runtimePath" >> $env:GITHUB_OUTPUT
+      - name: Assert selected runtime
+        env:
+          POWERSHELL_PATH: ${{ steps.runtime.outputs.path }}
+        run: |
+          $runtimeVersion = (& $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()').Trim()
+          if ($LASTEXITCODE -ne 0) { throw 'PowerShell version query failed.' }
+          $runtimeOs = (& $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -Command '[System.Environment]::OSVersion.Version.ToString()').Trim()
+          if ($LASTEXITCODE -ne 0) { throw 'PowerShell OS query failed.' }
+          $runtimeArch = (& $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -Command '[System.Environment]::Is64BitProcess').Trim()
+          if ($LASTEXITCODE -ne 0) { throw 'PowerShell architecture query failed.' }
+          if (('${{ matrix.runtime }}' -ne 'runner' -and $runtimeVersion -ne '${{ matrix.runtime }}') -or $runtimeArch -ne 'True') {
+            throw "Selected runtime reported version '$runtimeVersion', OS '$runtimeOs', 64-bit '$runtimeArch'."
+          }
+          Write-Host "Selected PowerShell $runtimeVersion on OS $runtimeOs (64-bit=$runtimeArch)."
+      - name: Install test dependencies
+        env:
+          POWERSHELL_PATH: ${{ steps.runtime.outputs.path }}
+        run: |
+          & $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -Command "Install-Module Pester -RequiredVersion 5.7.1 -Force -Scope CurrentUser -ErrorAction Stop"
+          if ($LASTEXITCODE -ne 0) { throw 'Pester installation failed.' }
+          az bicep install --version v0.46.1
+          if ($LASTEXITCODE -ne 0) { throw 'Bicep installation failed.' }
+      - name: Run static, package and behavioral validation
+        env:
+          POWERSHELL_PATH: ${{ steps.runtime.outputs.path }}
+        run: |
+          & $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -File ./scripts/Test-Repository.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Repository validation failed under the selected runtime.' }
+      - name: Rebuild offline package
+        env:
+          POWERSHELL_PATH: ${{ steps.runtime.outputs.path }}
+        run: |
+          $generatedPaths = @(
+            'config/generated-package-manifest.json',
+            'deploy/azure-vm/Install-Sysmon.ps1',
+            'deploy/intune/Remediate-Sysmon.ps1',
+            'deploy/live-response/Install-Sysmon.ps1'
+          )
+          & $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -File ./scripts/Build-SysmonPackages.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'First package rebuild failed under the selected runtime.' }
+          $firstHashes = @{}; foreach ($path in $generatedPaths) { $firstHashes[$path] = (Get-FileHash $path -Algorithm SHA256).Hash }
+          & $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -File ./scripts/Build-SysmonPackages.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Second package rebuild failed under the selected runtime.' }
+          foreach ($path in $generatedPaths) {
+            $secondHash = (Get-FileHash $path -Algorithm SHA256).Hash
+            if ($firstHashes[$path] -ne $secondHash) { throw "Generated package hash changed between identical offline builds: $path" }
+          }
+          & $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -File ./tests/Test-Package.ps1
+          if ($LASTEXITCODE -ne 0) { throw 'Package tests failed after the selected runtime rebuild.' }

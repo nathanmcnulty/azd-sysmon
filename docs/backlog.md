@@ -5,7 +5,7 @@
 
 - **Schema version:** 1.0.0
 - **Repository:** nathanmcnulty/azd-sysmon
-- **Source revision:** `c20bbdb63e03279aec524ead39cdf1359ebc5701`
+- **Source revision:** `b4b18c8cfee4a1d97464bb3c99543c64e147b6ad`
 - **Captured:** 2026-10-07
 - **Items:** 23
 
@@ -276,7 +276,7 @@ Review SYS-012 against the current repository state. Its status or authorization
 
 - **Kind:** maintenance
 - **Priority:** P2
-- **Status:** proposed
+- **Status:** done
 - **Wave:** 1
 - **Authorization:** local-only
 - **Blocker:** _none_
@@ -318,7 +318,10 @@ Deferred existing follow-up&colon; Add a test matrix for the supported PowerShel
 
 **Evidence:**
 
-- _none_
+- Implementation branch codex/sysmon-runtime-matrix-20261007 is based on 0f485ba02fb19b63bf2b819487f4eebd2090c280; local source validation passed with 74 Pester tests, static validation, and package validation.
+- Official PowerShell v7.2.24 win-x64 portable archive was downloaded from its version-specific official release URL and verified locally against SHA-256 a1ccb6d8ad52f917470a136c3752af4465f261bcbe570cf44f52aa69ae6e867e; this archived runtime is used only to test the documented compatibility floor.
+- Exact implementation head b4b18c8cfee4a1d97464bb3c99543c64e147b6ad passed GitHub Actions run https&colon;//github.com/nathanmcnulty/azd-sysmon/actions/runs/37705865764&colon; windows-2022 and windows-2025 each passed with hosted pwsh and portable x64 PowerShell 7.2.24; terminal validate also passed. Each selected interpreter ran ./scripts/Test-Repository.ps1, ./scripts/Build-SysmonPackages.ps1 twice with manifest/script hash comparison, and ./tests/Test-Package.ps1. The terminal job retained the canonical generated-byte git diff check.
+- Local required validation passed 74 tests with zero failed, skipped or not-run under current PowerShell and portable 7.2.24. The pinned archive SHA-256 was verified before fresh extraction, and a hostile pre-existing pwsh.exe was ignored. Target class is offline source/hosted CI compatibility; no live endpoint installation or service behavior is claimed. Cleanup is not applicable to lab resources&colon; no authentication or resources were created; hosted runners are ephemeral.
 
 **Review and authorization note:**
 
