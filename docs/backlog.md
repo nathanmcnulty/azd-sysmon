@@ -1177,14 +1177,11 @@ Review SYS-009 against the current repository state. Its status or authorization
 
 - **Kind:** discovery
 - **Priority:** P2
-- **Status:** in-progress
+- **Status:** done
 - **Wave:** 2
 - **Authorization:** local-only
 - **Blocker:** _none_
-- **Claim owner:** /root/next&lowbar;backlog&lowbar;selection
-- **Claim worktree:** C&colon;&bsol;azd-reconciliation-20261011&bsol;sysmon-validation-inspector
-- **Claim base revision:** `1d59a4381212900796d7f3bfaaf94d35a840a1e3`
-- **Claim started:** 10/11/2026 01&colon;16&colon;48
+- **Claim:** _none_
 
 **Problem:**
 
@@ -1227,6 +1224,7 @@ Existing Graph authentication reuse does not yet standardize each optional-path 
 - The target contract and fixed local receipts are bounded, hash-bound and target/record-age checked. Informational publication/association records never pass a live qualification check; no authentication, CLI/service dispatch, mutation, automatic previous-file recovery or cleanup authority is added. Partial permission metadata records existing source scopes and unresolved baseline gaps, not grants.
 - PowerShell validation now selects pinned 7.6.6 on both Windows CI images; the former Windows PowerShell receipt child test runs the selected 7.6+ host. Endpoint installer/bootstrap contracts and generated package bytes are unchanged.
 - Implementation is in progress pending independent exact-source review and hosted CI. Offline fixtures and package reproducibility do not prove effective endpoint installation, live assignments, fresh Event/Heartbeat ingestion or Live Response execution.
+- 2026-10-11 completed the local-only discovery acceptance in PR &num;16&colon; reviewed head60816218668a4ace06e149d84761416a19fb5fb4 merged asdfa727c7b22c7a9b8a59a534f353bd1b7a9f3f98, with identical reviewed and origin/main trees. All six hosted head checks passed, including 118/118 tests on each PowerShell7.6.6 Windows image and the restored checked-in package drift gate. Independent review and replay verified the bounded inspector, immutable component provenance, receipt migration comparison and all five independent paths. No live qualification passes from local records; endpoint, ingestion, assignment and Live Response acceptance remain separate proposed items.
 
 **Review and authorization note:**
 
