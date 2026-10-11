@@ -16,26 +16,26 @@ The builder reads the vendored XMLs from `config/vendor/` pinned by `config/sysm
 pwsh -File .\scripts\Test-Repository.ps1
 ```
 
-Install Pester 5.7.1 and Azure CLI with Bicep before running validation. It checks PowerShell parsing, the DCR contract, Bicep compilation, generated script integrity and size, vendored component hashes, and behavioral tests using mocked service boundaries. These checks do not authenticate or deploy.
+Use PowerShell 7.6 or later, Pester 5.7.1 and Azure CLI with Bicep for repository validation. It checks PowerShell parsing, the DCR contract, Bicep compilation, generated script integrity and size, vendored component hashes, and behavioral tests using mocked service boundaries. These checks do not authenticate or deploy. Endpoint installation scripts retain their separate existing runtime contracts.
 
-The validation workflow runs a four-cell matrix before the existing terminal
+The validation workflow runs a two-cell matrix before the existing terminal
 `validate` job. The terminal job keeps its existing check identity and fails
 when any matrix leg fails or is cancelled. The matrix runs the
-same static, package, and behavioral checks across a four-cell Windows matrix:
-`windows-2022` and `windows-2025`, each with the hosted runner `pwsh` and a
-portable PowerShell 7.2.24 runtime. The portable runtime is downloaded from
-the immutable official PowerShell v7.2.24 release URL, checked against its
-published SHA-256 (`A1CCB6D8AD52F917470A136C3752AF4465F261BCBE570CF44F52AA69AE6E867E`),
+same static, package, and behavioral checks on `windows-2022` and
+`windows-2025`, each using portable PowerShell 7.6.6. The portable runtime is downloaded from
+the immutable official [PowerShell v7.6.6 release](https://github.com/PowerShell/PowerShell/releases/tag/v7.6.6), checked against its
+published SHA-256 (`02FE458BE20493FBDF43F61EA20610B811EE6C738AB1676C61B9CFCD1A33C860`),
 and version-checked before it runs repository tests. This proves source and
 CI behavior on those hosted environments; it does not prove a Windows 11
 endpoint, Sysmon installation, or live Azure/Intune behavior. PowerShell
-7.2.24 is retained as an archived compatibility floor for this matrix, not as
-a current security or support recommendation. Each matrix leg rebuilds the
+7.6 is the repository validation floor. The installer bootstrap selects the pinned runtime before executing repository validation. Each matrix leg rebuilds the
 offline package twice and compares generated manifest and script hashes within
-that runtime. ZIP bytes can differ between PowerShell 7.2 and the hosted
-current runtime because `Compress-Archive` serialization differs; the
-terminal `validate` job remains the canonical tracked-byte reproducibility
-check.
+that runtime. Both legs first verify the checked-in package bytes, then compare
+two offline builds. The terminal `validate` job requires both legs to succeed.
+
+The [local artifact inspector](deployment-artifacts.md) emits the common
+deployment-validation report for five independent paths. Its fixtures and
+local records do not establish current endpoint or service readiness.
 
 ## Test order
 

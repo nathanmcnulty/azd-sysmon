@@ -1,3 +1,6 @@
 * text=auto eol=lf
 scripts/vendor/Azd.GraphAuthentication/Azd.GraphAuthentication.psd1 text eol=lf
 scripts/vendor/Azd.GraphAuthentication/Azd.GraphAuthentication.psm1 text eol=lf
+scripts/vendor/Azd.DeploymentValidation/Azd.DeploymentValidation.psd1 text eol=lf
+scripts/vendor/Azd.DeploymentValidation/Azd.DeploymentValidation.psm1 text eol=lf
+scripts/vendor/Azd.DeploymentValidation/deployment-validation.schema.json text eol=lf

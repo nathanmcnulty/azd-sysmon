@@ -1,0 +1,51 @@
+{
+  "gaps": [
+    "The local artifact inspector requires no Azure, Graph or Defender permissions and performs no authentication or service queries. Its target and receipt hashes are caller-selected local evidence, not approved grants or effective authorization. Source: scripts/Sysmon.ArtifactValidation.psm1 SHA256 369043d8535f28badb045c701fdb336124ec3f733852ce616d44a507a035d041; scripts/Test-DeploymentArtifacts.ps1 SHA256 7ae735125b9819926b7063d95740b15cc18e12a5add4e0a7ccee6be7857c44b0.",
+    "Azure deployment, DCR/VM association and cleanup roles have not been exhaustively mapped in this assessment. Existing scripts and target-specific authorization remain authoritative; no additional roles are granted.",
+    "Defender Live Response publishing and cleanup refer to Library.Manage, but effective operator roles, licensing and endpoint execution permissions remain unverified. Library publication is not execution or delivery.",
+    "Existing Intune cleanup, group access, all other optional paths and tenant-wide AMA association requirements are not completely represented. Partial coverage must not be used to consent or grant permissions."
+  ],
+  "requirements": [
+    {
+      "defaultEnabled": false,
+      "permission": "DeviceManagementScripts.ReadWrite.All",
+      "phase": "deployment",
+      "evidence": [
+        {
+          "sha256": "0ce6835fd338e6b8b889b1000419d0e33d91ff3569acbeed5ae213f421d25692",
+          "path": "scripts/Deploy-IntuneRemediation.ps1"
+        }
+      ],
+      "resource": "Microsoft Graph",
+      "rationale": "Existing optional publisher requests this delegated scope. The new local inspector does not invoke it or require a grant.",
+      "evidenceState": "code",
+      "principal": "Explicitly selected signed-in operator",
+      "kind": "delegated",
+      "scope": "Selected tenant and configured Intune target group",
+      "feature": "intune-remediation"
+    },
+    {
+      "defaultEnabled": false,
+      "permission": "DeviceManagementApps.ReadWrite.All",
+      "phase": "deployment",
+      "evidence": [
+        {
+          "sha256": "f00ff744a2b91acbdd73412286c930e5872459df3d739b183fb69bdf6adff105",
+          "path": "scripts/Deploy-IntuneAmaApplication.ps1"
+        }
+      ],
+      "resource": "Microsoft Graph",
+      "rationale": "Existing optional publisher requests this delegated scope. The new local inspector does not invoke it or require a grant.",
+      "evidenceState": "code",
+      "principal": "Explicitly selected signed-in operator",
+      "kind": "delegated",
+      "scope": "Selected tenant and configured Intune target group",
+      "feature": "intune-ama"
+    }
+  ],
+  "solutionId": "azd-sysmon",
+  "coverage": "partial",
+  "status": "implemented",
+  "schemaVersion": "1.0",
+  "reviewedOn": "2026-10-11"
+}

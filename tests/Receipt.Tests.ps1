@@ -1,4 +1,4 @@
-#requires -Version 7.2
+#requires -Version 7.6
 
 BeforeAll {
     $sourceRoot = Split-Path -Parent $PSScriptRoot
@@ -66,19 +66,15 @@ Describe 'Recoverable JSON receipt writes' {
         (Read-AzdJsonReceipt -Path "$receiptPath.previous").status | Should -Be 'created'
     }
 
-    It 'performs first write, read, and repeated replacement under Windows PowerShell 5.1' {
-        $windowsPowerShell = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
-        if (-not (Test-Path -LiteralPath $windowsPowerShell -PathType Leaf)) {
-            Set-ItResult -Skipped -Because 'Windows PowerShell 5.1 is only available on Windows.'
-            return
-        }
-
-        $nativeRoot = Join-Path $receiptRoot 'windows-powershell'
+    It 'performs first write, read, and repeated replacement under PowerShell 7.6+' {
+        $selectedPowerShell = Join-Path $PSHOME 'pwsh.exe'
+        $nativeRoot = Join-Path $receiptRoot 'powershell-7'
         New-Item -ItemType Directory -Path $nativeRoot -Force | Out-Null
         $nativeTest = Join-Path $nativeRoot 'Test-Receipt.ps1'
         @'
 param([string]$HelperPath, [string]$Root)
 $ErrorActionPreference = 'Stop'
+if ($PSVersionTable.PSVersion -lt [version]'7.6') { throw 'PowerShell 7.6+ required.' }
 . $HelperPath
 $path = Join-Path $Root 'receipt.json'
 Write-AzdJsonReceipt -Path $path -InputObject ([ordered]@{ version = 1 })
@@ -87,11 +83,11 @@ Write-AzdJsonReceipt -Path $path -InputObject ([ordered]@{ version = 2 })
 if ((Read-AzdJsonReceipt -Path $path).version -ne 2 -or (Read-AzdJsonReceipt -Path "$path.previous").version -ne 1) { throw 'First replacement failed.' }
 Write-AzdJsonReceipt -Path $path -InputObject ([ordered]@{ version = 3 })
 if ((Read-AzdJsonReceipt -Path $path).version -ne 3 -or (Read-AzdJsonReceipt -Path "$path.previous").version -ne 2) { throw 'Repeated replacement failed.' }
-'Windows PowerShell receipt validation passed.'
+'PowerShell 7 receipt validation passed.'
 '@ | Set-Content -LiteralPath $nativeTest -Encoding UTF8
 
-        $output = & $windowsPowerShell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $nativeTest -HelperPath $helperPath -Root $nativeRoot 2>&1
+        $output = & $selectedPowerShell -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File $nativeTest -HelperPath $helperPath -Root $nativeRoot 2>&1
         $LASTEXITCODE | Should -Be 0 -Because ($output -join [Environment]::NewLine)
-        $output | Should -Contain 'Windows PowerShell receipt validation passed.'
+        $output | Should -Contain 'PowerShell 7 receipt validation passed.'
     }
 }
