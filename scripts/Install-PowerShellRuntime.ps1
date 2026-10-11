@@ -7,10 +7,10 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$version = '7.2.24'
+$version = '7.6.6'
 $archiveName = "PowerShell-$version-win-x64.zip"
 $archiveUri = "https://github.com/PowerShell/PowerShell/releases/download/v$version/$archiveName"
-$expectedSha256 = 'A1CCB6D8AD52F917470A136C3752AF4465F261BCBE570CF44F52AA69AE6E867E'
+$expectedSha256 = '02FE458BE20493FBDF43F61EA20610B811EE6C738AB1676C61B9CFCD1A33C860'
 $outputRoot = [IO.Path]::GetFullPath($OutputDirectory)
 $archivePath = Join-Path $outputRoot $archiveName
 $extractRoot = Join-Path $outputRoot ('runtime-' + [Guid]::NewGuid().ToString('N'))

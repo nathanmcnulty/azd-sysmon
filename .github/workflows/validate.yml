@@ -21,19 +21,6 @@ jobs:
           MATRIX_RESULT: ${{ needs.runtime_matrix.result }}
         run: |
           if ($env:MATRIX_RESULT -ne 'success') { throw "PowerShell runtime matrix result was '$env:MATRIX_RESULT'." }
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Install test dependencies
-        run: |
-          Install-Module Pester -RequiredVersion 5.7.1 -Force -Scope CurrentUser
-          az bicep install --version v0.46.1
-          if ($LASTEXITCODE -ne 0) { throw 'Bicep installation failed.' }
-      - name: Validate
-        run: ./scripts/Test-Repository.ps1
-      - name: Verify reproducible offline package
-        run: |
-          ./scripts/Build-SysmonPackages.ps1
-          git diff --exit-code
-          if ($LASTEXITCODE -ne 0) { throw 'Package rebuild changed tracked content.' }
   runtime_matrix:
     name: PowerShell ${{ matrix.runtime }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -43,13 +30,9 @@ jobs:
       matrix:
         include:
           - os: windows-2022
-            runtime: runner
-          - os: windows-2022
-            runtime: 7.2.24
+            runtime: 7.6.6
           - os: windows-2025
-            runtime: runner
-          - os: windows-2025
-            runtime: 7.2.24
+            runtime: 7.6.6
     defaults:
       run:
         shell: pwsh
@@ -58,10 +41,6 @@ jobs:
       - name: Select PowerShell runtime
         id: runtime
         run: |
-          if ('${{ matrix.runtime }}' -eq 'runner') {
-            "path=pwsh" >> $env:GITHUB_OUTPUT
-            exit 0
-          }
           $runtimeRoot = Join-Path $env:RUNNER_TEMP "powershell-${{ matrix.runtime }}"
           $runtimePath = & ./scripts/Install-PowerShellRuntime.ps1 -OutputDirectory $runtimeRoot
           "path=$runtimePath" >> $env:GITHUB_OUTPUT
@@ -75,7 +54,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'PowerShell OS query failed.' }
           $runtimeArch = (& $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -Command '[System.Environment]::Is64BitProcess').Trim()
           if ($LASTEXITCODE -ne 0) { throw 'PowerShell architecture query failed.' }
-          if (('${{ matrix.runtime }}' -ne 'runner' -and $runtimeVersion -ne '${{ matrix.runtime }}') -or $runtimeArch -ne 'True') {
+          if ($runtimeVersion -ne '${{ matrix.runtime }}' -or [version]$runtimeVersion -lt [version]'7.6' -or $runtimeArch -ne 'True') {
             throw "Selected runtime reported version '$runtimeVersion', OS '$runtimeOs', 64-bit '$runtimeArch'."
           }
           Write-Host "Selected PowerShell $runtimeVersion on OS $runtimeOs (64-bit=$runtimeArch)."
@@ -114,3 +93,5 @@ jobs:
           }
           & $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -File ./tests/Test-Package.ps1
           if ($LASTEXITCODE -ne 0) { throw 'Package tests failed after the selected runtime rebuild.' }
+          git diff --exit-code
+          if ($LASTEXITCODE -ne 0) { throw 'Offline rebuild changed checked-in artifacts.' }

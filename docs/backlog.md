@@ -1177,11 +1177,14 @@ Review SYS-009 against the current repository state. Its status or authorization
 
 - **Kind:** discovery
 - **Priority:** P2
-- **Status:** proposed
+- **Status:** in-progress
 - **Wave:** 2
 - **Authorization:** local-only
 - **Blocker:** _none_
-- **Claim:** _none_
+- **Claim owner:** /root/next&lowbar;backlog&lowbar;selection
+- **Claim worktree:** C&colon;&bsol;azd-reconciliation-20261011&bsol;sysmon-validation-inspector
+- **Claim base revision:** `1d59a4381212900796d7f3bfaaf94d35a840a1e3`
+- **Claim started:** 10/11/2026 01&colon;16&colon;48
 
 **Problem:**
 
@@ -1220,7 +1223,10 @@ Existing Graph authentication reuse does not yet standardize each optional-path 
 
 **Evidence:**
 
-- _none_
+- Local-only artifact inspector adopts hash-locked deployment-validation 1.1.1 at Reference49b21df0b222a35537b9b75e46f851cc7e514c73 and represents package, Intune, Azure VM, Sentinel and Live Response independently. See docs/deployment-artifacts.md and docs/components.md for scope and the explicit deployment-receipt 0.2.1 deferral against current cleanup contracts.
+- The target contract and fixed local receipts are bounded, hash-bound and target/record-age checked. Informational publication/association records never pass a live qualification check; no authentication, CLI/service dispatch, mutation, automatic previous-file recovery or cleanup authority is added. Partial permission metadata records existing source scopes and unresolved baseline gaps, not grants.
+- PowerShell validation now selects pinned 7.6.6 on both Windows CI images; the former Windows PowerShell receipt child test runs the selected 7.6+ host. Endpoint installer/bootstrap contracts and generated package bytes are unchanged.
+- Implementation is in progress pending independent exact-source review and hosted CI. Offline fixtures and package reproducibility do not prove effective endpoint installation, live assignments, fresh Event/Heartbeat ingestion or Live Response execution.
 
 **Review and authorization note:**
 
