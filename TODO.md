@@ -53,7 +53,7 @@ credentials, tokens, or deployment receipts in this file.
   use a recoverable temporary-file replacement where practical.
 - [ ] Add a test matrix for the supported PowerShell versions and Windows
   environments, including the minimum documented PowerShell 7.2 runtime.
-- [ ] Test upstream-monitor issue creation with a fixture or isolated test
+- [x] Test upstream-monitor issue creation with a fixture or isolated test
   repository, including duplicate-issue suppression and failure recovery.
 - [ ] Keep GitHub Actions SHAs, Dependabot updates, CodeQL, dependency review,
   and the vendored `azd-reference` lock synchronized after every release.

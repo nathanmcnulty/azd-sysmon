@@ -331,7 +331,7 @@ Review SYS-013 against the current repository state. Its status or authorization
 
 - **Kind:** maintenance
 - **Priority:** P2
-- **Status:** proposed
+- **Status:** done
 - **Wave:** 1
 - **Authorization:** publication
 - **Blocker:** _none_
@@ -374,7 +374,8 @@ Deferred existing follow-up&colon; Test upstream-monitor issue creation with a f
 
 **Evidence:**
 
-- _none_
+- Fixture coverage is implemented in tests/UpstreamIssue.Tests.ps1 and exercises create, later-page duplicate suppression, pull-request exclusion, list failure, malformed list output, create failure cleanup, and retry after an uncertain create result.
+- The workflow delegates to scripts/New-UpstreamReviewIssue.ps1 with a fixed title, paginated open-issue query, UTF-8 body-file cleanup, and fail-closed list/create handling; focused Pester 5.7.1 validation passed on PowerShell 7.6.6. Evidence is retained under the local artifact directory and makes no live issue-creation claim.
 
 **Review and authorization note:**
 
