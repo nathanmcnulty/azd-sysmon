@@ -39,12 +39,11 @@ Describe 'Azure Monitor Agent Intune publisher' {
         Mock Get-AuthenticodeSignature { [pscustomobject]@{ Status = 'Valid'; SignerCertificate = [pscustomobject]@{ Subject = 'CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US' } } }
         $script:msiProperties = @{ ProductCode = '{C4F6939C-A3A2-4556-AEB6-889F720A8AB8}'; ProductVersion = '1.44.0.0'; Manufacturer = 'Microsoft Corporation' }
         $global:azdSysmonAmaTestMsiProperties = $script:msiProperties
-        if ($script:usesWindowsBoundaryShim) {
-            # The Unix shim needs a default; Windows must retain native cmdlet fallback.
-            Mock New-Object {
-                param($TypeName, $ArgumentList)
-                Microsoft.PowerShell.Utility\New-Object -TypeName $TypeName -ArgumentList $ArgumentList
-            }
+        # Pester 6 requires a default for unmatched calls on both native cmdlets and shims.
+        Mock New-Object {
+            param($TypeName, $ArgumentList, $ComObject)
+            if ($ComObject) { throw 'Unexpected unmocked COM boundary.' }
+            & (Get-Command -Name Microsoft.PowerShell.Utility\New-Object -CommandType Cmdlet) -TypeName $TypeName -ArgumentList $ArgumentList
         }
         Mock New-Object {
             $database = [pscustomobject]@{}
