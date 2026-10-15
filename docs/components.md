@@ -5,8 +5,8 @@ The template is self-contained. Deployments never fetch source from the private
 
 | Component | Version | Source revision | Consumer |
 | --- | --- | --- | --- |
-| `graph-delegated-authentication` | `0.1.1` | `bc2cf2aad4ff5ebadabe8fd0f0efcf71d94d0e0f` | Intune publisher |
-| `deployment-validation` | `1.1.1` | `49b21df0b222a35537b9b75e46f851cc7e514c73` | Local artifact inspector |
+| `graph-delegated-authentication` | `0.2.0` | `fbb521e468ed129f951e7e13ecf0134986fdbd75` | Intune publisher |
+| `deployment-validation` | `2.0.0` | `fbb521e468ed129f951e7e13ecf0134986fdbd75` | Local artifact inspector |
 
 `azd-components.lock.json` records the canonical source repository, component
 version, commit, source paths, destination paths, and SHA-256 hashes. The normal
@@ -15,11 +15,16 @@ The canonical portfolio registry tracks the public consumer at
 `nathanmcnulty/azd-sysmon`. Keep the registry entry aligned with this repository
 when the component baseline or canonical checkout changes.
 
+This migration consumes the exact reviewed candidate from [azd-reference PR #99](https://github.com/nathanmcnulty/azd-reference/pull/99). Merge that canonical baseline before this consumer update; the lock uses its immutable commit, without a moving-branch dependency. The baseline changes the component versions and runtime manifests; the implementation and schema bytes remain identical.
+
 Maintainers with an `azd-reference` checkout can update explicitly:
 
 ```powershell
 & ../azd-reference/tooling/Sync-AzdComponent.ps1 `
-    -Component graph-delegated-authentication -Version <reviewed-version> `
+    -Component graph-delegated-authentication -Revision fbb521e468ed129f951e7e13ecf0134986fdbd75 `
+    -TargetPath <azd-sysmon-directory>
+& ../azd-reference/tooling/Sync-AzdComponent.ps1 `
+    -Component deployment-validation -Revision fbb521e468ed129f951e7e13ecf0134986fdbd75 `
     -TargetPath <azd-sysmon-directory>
 & ../azd-reference/tooling/Test-AzdComponentDrift.ps1 -TargetPath <azd-sysmon-directory>
 ```
@@ -36,10 +41,9 @@ sources have a separate upstream release/hash manifest and third-party notices.
 Deployment-validation is adopted only for check definitions, planned checks and
 the schema-valid local report described in [deployment artifacts](deployment-artifacts.md).
 The CLI verifies all three vendored hashes before import. It does not add service
-queries, permissions or a runtime dependency on Reference. The existing Graph
-authentication component remains at 0.1.1.
+queries, permissions or a runtime dependency on Reference. Both consumed components require PowerShell 7.6 or later.
 
-The candidate [deployment-receipt 0.2.1](https://github.com/nathanmcnulty/azd-reference/blob/49b21df0b222a35537b9b75e46f851cc7e514c73/components/powershell/deployment-receipt/component.json)
+The candidate [deployment-receipt 0.3.0](https://github.com/nathanmcnulty/azd-reference/blob/fbb521e468ed129f951e7e13ecf0134986fdbd75/components/powershell/deployment-receipt/component.json)
 is deferred. Its common report/management-binding schema does not replace the
 solution's object-type, environment, tenant, subscription, object ID, account,
 `adoptedExisting` and mutation flags consumed by cleanup. `Azd.Receipt.ps1`

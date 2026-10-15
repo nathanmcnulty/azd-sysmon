@@ -1,4 +1,4 @@
-#requires -Version 7.2
+#requires -Version 7.6
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][ValidatePattern('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')][string]$GroupId,

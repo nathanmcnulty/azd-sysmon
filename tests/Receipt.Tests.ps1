@@ -37,12 +37,19 @@ Describe 'Recoverable JSON receipt writes' {
     It 'preserves the primary and a validated candidate when replacement cannot complete' {
         Write-AzdJsonReceipt -Path $receiptPath -InputObject ([ordered]@{ version = 1 })
         $before = [IO.File]::ReadAllBytes($receiptPath)
-        $lock = [IO.File]::Open($receiptPath, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+        $lock = $null
+        if ($IsWindows) {
+            $lock = [IO.File]::Open($receiptPath, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+        } else {
+            # Unix rename ignores Windows file-sharing locks. An unusable backup
+            # destination forces the same real File.Replace failure after validation.
+            $null = New-Item -ItemType Directory -Path "$receiptPath.previous"
+        }
         try {
             { Write-AzdJsonReceipt -Path $receiptPath -InputObject ([ordered]@{ version = 2 }) } |
                 Should -Throw '*validated recovery candidate was preserved*'
         } finally {
-            $lock.Dispose()
+            if ($null -ne $lock) { $lock.Dispose() }
         }
 
         [Convert]::ToBase64String([IO.File]::ReadAllBytes($receiptPath)) | Should -BeExactly ([Convert]::ToBase64String($before))
@@ -67,7 +74,7 @@ Describe 'Recoverable JSON receipt writes' {
     }
 
     It 'performs first write, read, and repeated replacement under PowerShell 7.6+' {
-        $selectedPowerShell = Join-Path $PSHOME 'pwsh.exe'
+        $selectedPowerShell = Join-Path $PSHOME $(if ($IsWindows) { 'pwsh.exe' } else { 'pwsh' })
         $nativeRoot = Join-Path $receiptRoot 'powershell-7'
         New-Item -ItemType Directory -Path $nativeRoot -Force | Out-Null
         $nativeTest = Join-Path $nativeRoot 'Test-Receipt.ps1'

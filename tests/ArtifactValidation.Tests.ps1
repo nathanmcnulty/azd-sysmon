@@ -191,7 +191,7 @@ Describe 'Actual artifact CLI and canonical report integration' {
     }
     It 'refuses an actual reparse-point artifact root' {
         $junction=Join-Path $templateRoot 'linked-artifacts'
-        $null=New-Item -ItemType Junction -Path $junction -Target $artifactRoot -ErrorAction Stop
+        $null=New-Item -ItemType $(if ($IsWindows) { 'Junction' } else { 'SymbolicLink' }) -Path $junction -Target $artifactRoot -ErrorAction Stop
         ((Get-Item -LiteralPath $junction -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)|Should -Not -Be 0
         { & (Join-Path $sourceRoot 'scripts/Test-DeploymentArtifacts.ps1') -ArtifactRoot $junction }|Should -Throw '*LocalArtifactPathRejected*'
     }

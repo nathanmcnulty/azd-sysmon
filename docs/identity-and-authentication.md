@@ -51,8 +51,8 @@ token whose audience is the REST endpoint instead of the legacy resource.
 
 Tokens are acquired at runtime and are not stored in this repository. Do not place client secrets, passwords, access tokens, SAS URLs, or personal data in AZD environment values or generated scripts.
 
-The Intune publisher imports `graph-delegated-authentication@0.1.1` from local
-vendored files. It requires PowerShell 7.2+ and Microsoft.Graph.Authentication
+The Intune publisher imports `graph-delegated-authentication@0.2.0` from local
+vendored files. It requires PowerShell 7.6+ and Microsoft.Graph.Authentication
 2.30.0+. Set `AZD_SYSMON_GRAPH_ACCOUNT` to the intended administrator UPN;
 `AZURE_TENANT_ID` is verified against the AZD subscription before provisioning.
 A mismatched inherited Graph session fails closed. To deliberately replace it,

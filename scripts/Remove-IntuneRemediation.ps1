@@ -1,4 +1,4 @@
-#requires -Version 7.2
+#requires -Version 7.6
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][ValidateScript({ Test-Path -LiteralPath $_ -PathType Leaf })][string]$StatePath,

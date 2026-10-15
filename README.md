@@ -9,7 +9,8 @@ The default uses the checked-in deployment artifacts and skips Sentinel collecti
 Prerequisites:
 
 - Azure Developer CLI (`azd`) and Azure CLI (`az`) with normal browser/WAM authentication.
-- PowerShell 7.2 or later for the AZD hooks and optional Graph/MDE publishing helpers.
+- PowerShell 7.6 or later for repository management, packaging, AZD hooks, and optional Graph/MDE publishing helpers. Repository tests require Pester 6.2 or later.
+- The generated endpoint payloads currently retain the platform-hosted Windows PowerShell 5.1 contract. Endpoint migration remains open in [issue #18](https://github.com/nathanmcnulty/azd-sysmon/issues/18); see the [runtime boundary](docs/development.md#endpoint-runtime-boundary).
 - A Windows 11 test device or Windows Server 2025-and-later Azure VM with administrator/System execution and Sysmon built-in optional-feature support.
 - For Sentinel ingestion, an existing Log Analytics workspace used by Microsoft Sentinel.
 

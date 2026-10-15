@@ -1,4 +1,4 @@
-#requires -Version 7.0
+#requires -Version 7.6
 
 BeforeAll {
     $templateRoot = Split-Path -Parent $PSScriptRoot

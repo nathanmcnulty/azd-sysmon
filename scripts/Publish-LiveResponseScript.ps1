@@ -1,4 +1,4 @@
-#requires -Version 7.0
+#requires -Version 7.6
 [CmdletBinding()]
 param(
     [string]$ScriptPath = (Join-Path (Split-Path -Parent $PSScriptRoot) 'deploy\live-response\Install-Sysmon.ps1'),

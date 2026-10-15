@@ -9,10 +9,10 @@ $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $lock = Get-Content -LiteralPath (Join-Path $repositoryRoot 'azd-components.lock.json') -Raw | ConvertFrom-Json
 $component = @($lock.components | Where-Object id -ceq 'deployment-validation')
-if ($component.Count -ne 1 -or $component[0].version -cne '1.1.1' -or
-    $component[0].sourceRevision -cne '49b21df0b222a35537b9b75e46f851cc7e514c73') { throw 'ValidationComponentBindingRejected' }
+if ($component.Count -ne 1 -or $component[0].version -cne '2.0.0' -or
+    $component[0].sourceRevision -cne 'fbb521e468ed129f951e7e13ecf0134986fdbd75') { throw 'ValidationComponentBindingRejected' }
 $expected = @{
-    'scripts/vendor/Azd.DeploymentValidation/Azd.DeploymentValidation.psd1'='96f0773f9b2ebcb2e36cdbc894420fa898f10d99662edefd4a1782c29e9794f0'
+    'scripts/vendor/Azd.DeploymentValidation/Azd.DeploymentValidation.psd1'='09feca0f12bf7cd2d2dd68427f5e5efdbaab0d491dbff535cc4db5de99f3c5e7'
     'scripts/vendor/Azd.DeploymentValidation/Azd.DeploymentValidation.psm1'='6ad1183fb38b1b11283f0ff08c0dbb9f84b0070355521dfa9ec70cba125c653d'
     'scripts/vendor/Azd.DeploymentValidation/deployment-validation.schema.json'='eeabd298edf86ef88f9143dfef3fbec995f20f7ef0d3c380ab832b7514e83c34'
 }

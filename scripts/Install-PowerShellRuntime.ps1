@@ -1,4 +1,5 @@
 #requires -Version 7.2
+# Bootstrap only: verify and select the pinned runtime before any repository work.
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
@@ -34,8 +35,9 @@ if (-not (Test-Path -LiteralPath $pwshPath -PathType Leaf)) {
 }
 
 $actualVersion = (& $pwshPath -NoLogo -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion.ToString()').Trim()
-if ($actualVersion -ne $version) {
+if ($LASTEXITCODE -ne 0 -or $actualVersion -ne $version) {
     throw "PowerShell runtime version mismatch. Expected $version, got $actualVersion."
 }
 
+Write-Information "Selected PowerShell $actualVersion from the SHA-256-verified portable archive." -InformationAction Continue
 Write-Output $pwshPath
