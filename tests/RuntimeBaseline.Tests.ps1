@@ -48,18 +48,22 @@ Export-ModuleMember -Function Invoke-Pester
 '@
         }
         $selectedPowerShell = Join-Path $PSHOME $(if ($IsWindows) { 'pwsh.exe' } else { 'pwsh' })
-        $originalModulePath = $env:PSModulePath
-        try {
-            $env:PSModulePath = $moduleRoot + [IO.Path]::PathSeparator + (Join-Path $PSHOME 'Modules')
-            $output = & $selectedPowerShell -NoLogo -NoProfile -NonInteractive -File (Join-Path $fixture 'scripts/Test-Repository.ps1') -PesterVersion 6.2.0 2>&1
-            $LASTEXITCODE | Should -Be 0 -Because ($output -join [Environment]::NewLine)
-            ($output -join [Environment]::NewLine) | Should -Match 'Pester 6\.2\.0'
-            $output = & $selectedPowerShell -NoLogo -NoProfile -NonInteractive -File (Join-Path $fixture 'scripts/Test-Repository.ps1') 2>&1
-            $LASTEXITCODE | Should -Be 0 -Because ($output -join [Environment]::NewLine)
-            ($output -join [Environment]::NewLine) | Should -Match 'Pester 6\.3\.0'
-        } finally {
-            $env:PSModulePath = $originalModulePath
-        }
+        $launcher = Join-Path $fixture 'Invoke-Validation.ps1'
+        Set-Content $launcher @'
+param([string]$ModuleRoot, [string]$RepositoryRoot, [version]$PesterVersion)
+$ErrorActionPreference = 'Stop'
+# Windows startup adds installed module paths. Isolate only after startup completes.
+$env:PSModulePath = $ModuleRoot + [IO.Path]::PathSeparator + (Join-Path $PSHOME 'Modules')
+$parameters = @{}
+if ($PSBoundParameters.ContainsKey('PesterVersion')) { $parameters.PesterVersion = $PesterVersion }
+& (Join-Path $RepositoryRoot 'scripts/Test-Repository.ps1') @parameters
+'@
+        $output = & $selectedPowerShell -NoLogo -NoProfile -NonInteractive -File $launcher -ModuleRoot $moduleRoot -RepositoryRoot $fixture -PesterVersion 6.2.0 2>&1
+        $LASTEXITCODE | Should -Be 0 -Because ($output -join [Environment]::NewLine)
+        ($output -join [Environment]::NewLine) | Should -Match 'Pester 6\.2\.0'
+        $output = & $selectedPowerShell -NoLogo -NoProfile -NonInteractive -File $launcher -ModuleRoot $moduleRoot -RepositoryRoot $fixture 2>&1
+        $LASTEXITCODE | Should -Be 0 -Because ($output -join [Environment]::NewLine)
+        ($output -join [Environment]::NewLine) | Should -Match 'Pester 6\.3\.0'
     }
     It 'keeps the runtime installer narrow and selects its verified runtime in both workflows' {
         $bootstrap = Get-Content (Join-Path $sourceRoot 'scripts/Install-PowerShellRuntime.ps1') -Raw
