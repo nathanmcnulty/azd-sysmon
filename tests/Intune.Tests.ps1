@@ -1,3 +1,4 @@
+#requires -Version 7.6
 BeforeAll {
     $sourceRoot = Split-Path -Parent $PSScriptRoot
     function Connect-AzdGraphSession { param($TenantId, $ExpectedAccount, $Scopes, $ProbeUri, [switch]$AllowInteractive, [switch]$AllowContextReplacement) }

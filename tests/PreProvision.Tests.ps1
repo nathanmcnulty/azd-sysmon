@@ -1,3 +1,4 @@
+#requires -Version 7.6
 BeforeAll {
     $script:preProvision = Join-Path $PSScriptRoot '../scripts/Pre-Provision.ps1'
     function az { param([Parameter(ValueFromRemainingArguments)][string[]]$Arguments) }

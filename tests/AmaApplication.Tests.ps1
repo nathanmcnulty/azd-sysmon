@@ -1,5 +1,21 @@
+#requires -Version 7.6
 BeforeAll {
     $sourceRoot = Split-Path -Parent $PSScriptRoot
+    $script:usesWindowsBoundaryShim = -not (Get-Command Get-AuthenticodeSignature -ErrorAction SilentlyContinue)
+    if ($script:usesWindowsBoundaryShim) {
+        # Windows-only boundary: every test supplies its own signature mock.
+        function Get-AuthenticodeSignature { param($FilePath) throw 'Unmocked Authenticode boundary.' }
+        function New-Object {
+            [CmdletBinding(DefaultParameterSetName = 'Net')]
+            param(
+                [Parameter(Position = 0, ParameterSetName = 'Net')][string]$TypeName,
+                [Parameter(Position = 1, ParameterSetName = 'Net')][object[]]$ArgumentList,
+                [Parameter(Mandatory, ParameterSetName = 'Com')][string]$ComObject
+            )
+            if ($PSCmdlet.ParameterSetName -eq 'Com') { throw 'Unmocked Windows Installer boundary.' }
+            Microsoft.PowerShell.Utility\New-Object @PSBoundParameters
+        }
+    }
     function Connect-AzdGraphSession { param($TenantId, $ExpectedAccount, $Scopes, $ProbeUri, [switch]$AllowInteractive, [switch]$AllowContextReplacement) }
     function Invoke-MgGraphRequest { param($Method, $Uri, $Headers, $Body) }
     function Invoke-WebRequest { param($Uri, $Method, $Headers, $Body, $OutFile, $ContentType) }
@@ -23,6 +39,12 @@ Describe 'Azure Monitor Agent Intune publisher' {
         Mock Get-AuthenticodeSignature { [pscustomobject]@{ Status = 'Valid'; SignerCertificate = [pscustomobject]@{ Subject = 'CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US' } } }
         $script:msiProperties = @{ ProductCode = '{C4F6939C-A3A2-4556-AEB6-889F720A8AB8}'; ProductVersion = '1.44.0.0'; Manufacturer = 'Microsoft Corporation' }
         $global:azdSysmonAmaTestMsiProperties = $script:msiProperties
+        # Pester 6 requires a default for unmatched calls on both native cmdlets and shims.
+        Mock New-Object {
+            param($TypeName, $ArgumentList, $ComObject)
+            if ($ComObject) { throw 'Unexpected unmocked COM boundary.' }
+            & (Get-Command -Name Microsoft.PowerShell.Utility\New-Object -CommandType Cmdlet) -TypeName $TypeName -ArgumentList $ArgumentList
+        }
         Mock New-Object {
             $database = [pscustomobject]@{}
             $database | Add-Member -MemberType ScriptMethod -Name OpenView -Value {

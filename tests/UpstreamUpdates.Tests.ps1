@@ -1,4 +1,4 @@
-#requires -Version 7.2
+#requires -Version 7.6
 BeforeAll {
     $scriptRoot = Split-Path -Parent $PSScriptRoot
     . (Join-Path $scriptRoot 'scripts/Test-UpstreamUpdates.ps1')

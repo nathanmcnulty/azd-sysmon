@@ -22,12 +22,20 @@ jobs:
         shell: pwsh
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Select PowerShell runtime
+        id: runtime
+        run: |
+          $runtimePath = & ./scripts/Install-PowerShellRuntime.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'powershell-7.6.6')
+          "path=$runtimePath" >> $env:GITHUB_OUTPUT
       - name: Check pinned AMA and Sysmon inputs
         id: check
+        env:
+          POWERSHELL_PATH: ${{ steps.runtime.outputs.path }}
         run: |
           $reportPath = Join-Path $env:RUNNER_TEMP 'azd-sysmon-upstream-report.json'
           $summaryPath = Join-Path $env:RUNNER_TEMP 'azd-sysmon-upstream-summary.md'
-          $json = ./scripts/Test-UpstreamUpdates.ps1 -Run -ReportPath $reportPath -SummaryPath $summaryPath
+          $json = & $env:POWERSHELL_PATH -NoLogo -NoProfile -NonInteractive -File ./scripts/Test-UpstreamUpdates.ps1 -Run -ReportPath $reportPath -SummaryPath $summaryPath
+          if ($LASTEXITCODE -ne 0) { throw 'Upstream check failed under the selected runtime.' }
           $report = $json | ConvertFrom-Json
           Get-Content -LiteralPath $summaryPath | Add-Content -LiteralPath $env:GITHUB_STEP_SUMMARY
           "hasUpdates=$(([bool]$report.hasUpdates).ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT

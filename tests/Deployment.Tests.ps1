@@ -1,3 +1,4 @@
+#requires -Version 7.6
 BeforeAll {
     $sourceRoot = Split-Path -Parent $PSScriptRoot
     function az { param([Parameter(ValueFromRemainingArguments)][string[]]$Arguments) }
