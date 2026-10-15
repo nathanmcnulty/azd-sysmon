@@ -39,18 +39,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           SUMMARY_PATH: ${{ steps.check.outputs.summaryPath }}
         run: |
-          $title = 'Upstream update detected: azd-sysmon pinned inputs'
-          $issueJson = gh issue list --repo $env:GITHUB_REPOSITORY --state open --limit 100 --json title,number
-          if ($LASTEXITCODE -ne 0) { throw 'Could not inspect existing upstream monitor issues.' }
-          $openIssues = @($issueJson | ConvertFrom-Json)
-          if (-not ($openIssues | Where-Object title -eq $title)) {
-            $body = @"
-          The scheduled upstream monitor found a change in a pinned AMA or Sysmon input.
-
-          Review the report below, update the manifest and vendored/generated artifacts deliberately, run the full repository validation, and close this issue only after the new hashes and release metadata are reviewed.
-
-          $(Get-Content -LiteralPath $env:SUMMARY_PATH -Raw)
-          "@
-            gh issue create --repo $env:GITHUB_REPOSITORY --title $title --body $body
-          }
-          throw 'Pinned upstream inputs changed. Review the opened issue before updating the repository.'
+          . ./scripts/New-UpstreamReviewIssue.ps1
+          New-AzdSysmonUpstreamReviewIssue -Repository $env:GITHUB_REPOSITORY -SummaryPath $env:SUMMARY_PATH
+          throw 'Pinned upstream inputs changed. Review the existing or newly opened issue before updating the repository.'

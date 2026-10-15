@@ -450,7 +450,7 @@
       "title": "Test upstream-monitor issue creation with a fixture or isolated test repository, including duplicate-issue suppression and failure recovery",
       "kind": "maintenance",
       "priority": "P2",
-      "status": "proposed",
+      "status": "done",
       "wave": 1,
       "problem": "Deferred existing follow-up: Test upstream-monitor issue creation with a fixture or isolated test repository, including duplicate-issue suppression and failure recovery.",
       "scope": [
@@ -475,7 +475,10 @@
       "sources": [
         "TODO.md"
       ],
-      "evidence": [],
+      "evidence": [
+        "Fixture coverage is implemented in tests/UpstreamIssue.Tests.ps1 and exercises create, later-page duplicate suppression, pull-request exclusion, list failure, malformed list output, create failure cleanup, and retry after an uncertain create result.",
+        "The workflow delegates to scripts/New-UpstreamReviewIssue.ps1 with a fixed title, paginated open-issue query, UTF-8 body-file cleanup, and fail-closed list/create handling; focused Pester 5.7.1 validation passed on PowerShell 7.6.6. Evidence is retained under the local artifact directory and makes no live issue-creation claim."
+      ],
       "blocker": null
     },
     {
