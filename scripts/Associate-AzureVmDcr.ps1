@@ -15,12 +15,18 @@ foreach ($vmId in $VmResourceIds) {
     if ($vmId -notmatch '^/subscriptions/[^/]+/resourceGroups/[^/]+/providers/Microsoft\.Compute/virtualMachines/[^/]+$') {
         throw "Invalid Azure VM resource ID: $vmId"
     }
-    $uri = "https://management.azure.com$vmId/providers/Microsoft.Insights/dataCollectionRuleAssociations/$AssociationName?api-version=2022-06-01"
+    $uri = "https://management.azure.com$vmId/providers/Microsoft.Insights/dataCollectionRuleAssociations/${AssociationName}?api-version=2022-06-01"
     if ($Action -eq 'Ensure') {
         $body = @{ properties = @{ dataCollectionRuleId = $DcrId } } | ConvertTo-Json -Compress -Depth 4
         Write-Host "Associating Sysmon DCR to $vmId"
-        & az rest --method put --url $uri --body $body --only-show-errors | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw "DCR association failed for $vmId." }
+        $bodyPath = [IO.Path]::GetTempFileName()
+        try {
+            Set-Content -LiteralPath $bodyPath -Value $body -Encoding utf8NoBOM
+            & az rest --method put --url $uri --body "@$bodyPath" --headers 'Content-Type=application/json' --only-show-errors | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "DCR association failed for $vmId." }
+        } finally {
+            Remove-Item -LiteralPath $bodyPath -Force
+        }
     } else {
         Write-Host "Removing Sysmon DCR association from $vmId"
         $deleteOutput = (& az rest --method delete --url $uri --only-show-errors 2>&1) -join [Environment]::NewLine

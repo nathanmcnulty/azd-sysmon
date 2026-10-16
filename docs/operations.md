@@ -93,7 +93,11 @@ the VM has no other workload that depends on it.
 Deployment receipts are stored under `.azure/<environment>/`. Cleanup reads only
 that environment's receipts and uses recorded tenant, object, group, and
 subscription identities. It refuses to delete an object whose ownership marker,
-assignment, or recorded identifier no longer matches. Before client AMA cleanup,
+assignment, or recorded identifier no longer matches. Before VM cleanup,
+set `AZURE_SUBSCRIPTION_ID` and `AZURE_TENANT_ID` for the selected environment.
+VM association cleanup validates those values against the receipt and queries
+that subscription's commercial-cloud account. The CLI default subscription can
+remain as configured. Before client AMA cleanup,
 set both `AZD_SYSMON_REMOVE_CLIENT_AMA_ASSOCIATION=true` and
 `AZD_SYSMON_CONFIRM_TENANT_SCOPE=I_UNDERSTAND_TENANT_WIDE_SCOPE`. Verify the
 recorded association name before running `azd down`. If the association must
