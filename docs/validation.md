@@ -27,7 +27,56 @@ No reboot, tenant assignment, Graph grant, workspace or DCR was performed.
 The disposable resource group and managed-identity principal were verified
 absent after cleanup; the default CLI subscription remained unchanged.
 Private fixture, account, guest-result, source-hash and cleanup receipts remain
-outside Git. SYS-002 remains open for fresh native qualification.
+outside Git. The fixed-source qualification follows below.
+
+## Fixed Server 2025 VM qualification, 16 October 2026
+
+A second disposable VM used the same exact image and network isolation above.
+The initial inventory again showed Sysmon disabled and no Sysmon or AMA service.
+The cold Run Command install from `bd943226397e220879148147b3e7080b6c479912`
+succeeded without a reboot. Guest readback confirmed the enabled feature,
+running Sysmon service, valid Microsoft executable signature, enabled event log,
+and the bundled balanced XML hash.
+
+The logging phase exposed two additional native failures: PowerShell consumed
+`?api` as part of the association-name variable, and Windows `az.cmd` did not
+preserve the inline JSON request body. The association helper now braces the
+variable and passes UTF-8 JSON through a temporary file with an explicit JSON
+content type. Tests exercise the actual create/remove helper and verify intact
+request JSON and temporary-file removal after both successful and failed calls.
+
+The actual `Post-Provision.ps1` hook completed at
+`bde7a5fa6f4af54cf91422a929392e35095fc6e2`. Fresh readbacks confirmed AMA 1.45
+with automatic upgrade enabled and the named association pointing to the owned
+DCR/workspace. The authentic hook receipt recorded both steps. Guest diagnostics
+confirmed AMA configuration pickup; a fresh health probe produced a harmless
+process marker.
+An exact-VM, trial-time-bounded counts query returned 410 Sysmon `Event` rows,
+including one marker row, and nine `Heartbeat` rows at 08:53:55 UTC. The original
+marker preceded AMA configuration pickup; a deliberate fresh probe supplied the
+ingested marker.
+
+The actual `Pre-Down.ps1` hook removed the named association and updated its
+receipt while the CLI default subscription remained different from the selected
+lab subscription. Association absence was read back. Deleting the DCR-only ARM
+resource group then left the VM identity and succeeded AMA extension intact.
+This proves the VM-preserving teardown boundary using the real pre-down hook
+and ARM group deletion; no `azd down` command was executed in this trial.
+
+The owned workspace was permanently deleted with no matching deleted-workspace
+entry. Final fixture cleanup removed the VM group and its managed identity.
+The lab security resource provider automatically added an `MDE.Windows` child
+extension; its exact VM parent, publisher and creation caller were verified
+before including it in fixture cleanup. No Defender plan, grant, tenant-wide
+association, Intune assignment or recipient delivery was changed by this trial.
+Both groups, the identity principal and ephemeral credential file were verified
+absent; the CLI default subscription stayed unchanged. Private failed-attempt,
+source, guest, query, ownership and cleanup receipts remain outside Git.
+
+Source validation passed 159/159 tests on PowerShell 7.6.6/Pester 6.2 locally and
+on hosted Windows Server 2022 and 2025. SYS-002 is complete for this image and
+configuration; clean-client MSI, Defender Live Response and broader recovery
+qualification remain separate backlog gates. This is not release authorization.
 
 ## Earlier client pilot
 

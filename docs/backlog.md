@@ -754,7 +754,7 @@ Review SYS-021 against the current repository state. Its status or authorization
 
 - **Kind:** verification
 - **Priority:** P1
-- **Status:** proposed
+- **Status:** done
 - **Wave:** 2
 - **Authorization:** tenant-write
 - **Blocker:** _none_
@@ -799,6 +799,8 @@ Deferred existing follow-up&colon; Validate the Azure VM path on a disposable Wi
 
 - 2026-10-16&colon; Actual commercial-lab Server 2025 image 26100.33650.261013 exposed built-in Sysmon Disabled with no Sysmon/AMA services on a fresh no-public-IP VM. The production wrapper at 84d0f963d1ba53c90e257a8069006fe8871c7b49 correctly rejected a cold-install guest failure&colon; status output from Enable-BuiltInSysmon polluted the returned executable path.
 - The shared builder now uses the host stream for status; regenerated VM/Intune/Live Response installers preserve bundle/XML hashes. Six actual-generated-function offline cases cover Disabled and Enabled states across all three installers; the three cold cases failed before the fix and all six pass afterward. See docs/validation.md. A fresh native fixed-source install, AMA, DCR, Event/Heartbeat and VM-preserving solution teardown remain unproven; no reboot, grants, workspace or DCR was performed.
+- 2026-10-16 fixed-source native qualification&colon; clean Server 2025 image 26100.33650.261013 cold install passed at bd943226397e220879148147b3e7080b6c479912. Real Post-Provision completed at bde7a5fa6f4af54cf91422a929392e35095fc6e2 after independently reviewed URI/Windows JSON fixes. Guest feature/service/signature/XML health, AMA automatic upgrade, exact named DCR association and authentic receipt were confirmed. At 08&colon;53&colon;55 UTC the exact-VM trial-window query returned 410 Sysmon Event rows including one fresh benign marker, plus nine Heartbeat rows. Local and hosted Windows 2022/2025 validation passed 159/159 on PowerShell 7.6.6/Pester 6.2.
+- 2026-10-16 teardown qualification&colon; actual Pre-Down removed the receipt-bound association with a different CLI default subscription; association 404 and updated receipt were verified. ARM deletion of the owned DCR-only group preserved the VM identity and succeeded AMA extension. No azd down command was run. The disposable workspace, fixture group and managed identity were subsequently verified absent, with no matching workspace tombstone or ephemeral credential file; the CLI default stayed unchanged. A policy-created MDE.Windows child was bound to the owned VM and security resource-provider caller before fixture deletion. Private failed attempts, source/guest/query/cleanup receipts remain outside Git; see docs/validation.md. Separate clean-client MSI, Defender Live Response and broader recovery gates remain open.
 
 **Review and authorization note:**
 
