@@ -170,10 +170,10 @@ Review SYS-010 against the current repository state. Its status or authorization
 
 - **Kind:** maintenance
 - **Priority:** P2
-- **Status:** proposed
+- **Status:** blocked
 - **Wave:** 1
 - **Authorization:** local-only
-- **Blocker:** _none_
+- **Blocker:** A fully passing scheduled run requires an explicitly selected existing OIDC identity with the documented service access; cached local Intune requests returned 403. Scheduled enablement, identity/grant configuration and four-route native success remain unproven. Do not grant broad Defender authority or infer an API failure from denied access.
 - **Claim:** _none_
 
 **Problem:**
@@ -209,10 +209,12 @@ Deferred existing follow-up&colon; Add scheduled, read-only API smoke checks for
 **Sources:**
 
 - TODO.md
+- docs/service-api-smoke.md
 
 **Evidence:**
 
-- _none_
+- Implemented an explicit-Run fixed-route GET checker and default-disabled weekly/manual workflow with immutable action/runtime pins. Independent R2 source review passed after root-array and exact CLI argument/failure regressions; 31 focused tests pass on actual PowerShell 7.6.6/Pester 6.2.0. The registered static/package/full offline validation passed 168 tests before the final three regressions; fresh hosted validation is pending.
+- The 2026-10-16 cached commercial-lab run bound checker SHA256 0cc02c893826463afe209be28390d41af822be90373d890983c30c7238645ec6 and baseline 30fe2bc87be0d417151990a8714f81eb3ec5b84d with sourceDirty=true. Provider discovery and monitored-object GET returned 200 using 2021-09-01-preview; Defender library GET returned 200. Both Intune probes returned 403, aggregate passed=false, and the CLI entry point exited nonzero with a redacted receipt. No access grants, authentication fallback, service mutation or cleanup occurred. The scheduler opt-in variable is absent; no OIDC identity or federated credential was created.
 
 **Review and authorization note:**
 
