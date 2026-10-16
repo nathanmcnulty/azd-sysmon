@@ -25,7 +25,7 @@ $configFileHashes = @{
 
 function Write-Status {
     param([string]$Message)
-    Write-Output "[azd-sysmon] $Message"
+    Write-Host "[azd-sysmon] $Message"
 }
 
 function Assert-Administrator {
