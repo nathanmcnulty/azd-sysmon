@@ -147,7 +147,7 @@ __CONFIGURATION_HASH_MAP__
 
 function Write-Status {
     param([string]$Message)
-    Write-Output "[azd-sysmon] $Message"
+    Write-Host "[azd-sysmon] $Message"
 }
 
 function Assert-Administrator {

@@ -30,8 +30,8 @@
   "configBundleSha256": "c72b02ca6b326d32dfe279daa25f574d2b0d3041a075ac07023ab5353d5d3562",
   "generatedFiles": {
     ".\\deploy\\intune\\Detect-Sysmon.ps1": "91b6cfe6539ee58f9cf153430f1eda6258ac2ad052a512826caacf989767715d",
-    ".\\deploy\\intune\\Remediate-Sysmon.ps1": "bbe648a7ab9cfc8f3d96c5caf49eac7619eb73320e32e82261ccf4cb8c4d081f",
-    ".\\deploy\\live-response\\Install-Sysmon.ps1": "bbe648a7ab9cfc8f3d96c5caf49eac7619eb73320e32e82261ccf4cb8c4d081f",
-    ".\\deploy\\azure-vm\\Install-Sysmon.ps1": "bbe648a7ab9cfc8f3d96c5caf49eac7619eb73320e32e82261ccf4cb8c4d081f"
+    ".\\deploy\\intune\\Remediate-Sysmon.ps1": "c90eae167b9e16bb3995cc6f56971e258e29fbcd4a8dfaed60519cc4acabacd8",
+    ".\\deploy\\live-response\\Install-Sysmon.ps1": "c90eae167b9e16bb3995cc6f56971e258e29fbcd4a8dfaed60519cc4acabacd8",
+    ".\\deploy\\azure-vm\\Install-Sysmon.ps1": "c90eae167b9e16bb3995cc6f56971e258e29fbcd4a8dfaed60519cc4acabacd8"
   }
 }

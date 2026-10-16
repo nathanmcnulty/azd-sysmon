@@ -797,7 +797,8 @@ Deferred existing follow-up&colon; Validate the Azure VM path on a disposable Wi
 
 **Evidence:**
 
-- _none_
+- 2026-10-16&colon; Actual commercial-lab Server 2025 image 26100.33650.261013 exposed built-in Sysmon Disabled with no Sysmon/AMA services on a fresh no-public-IP VM. The production wrapper at 84d0f963d1ba53c90e257a8069006fe8871c7b49 correctly rejected a cold-install guest failure&colon; status output from Enable-BuiltInSysmon polluted the returned executable path.
+- The shared builder now uses the host stream for status; regenerated VM/Intune/Live Response installers preserve bundle/XML hashes. Six actual-generated-function offline cases cover Disabled and Enabled states across all three installers; the three cold cases failed before the fix and all six pass afterward. See docs/validation.md. A fresh native fixed-source install, AMA, DCR, Event/Heartbeat and VM-preserving solution teardown remain unproven; no reboot, grants, workspace or DCR was performed.
 
 **Review and authorization note:**
 
