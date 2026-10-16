@@ -125,10 +125,22 @@ if ($state.vmDcrAssociated) {
         throw 'The recorded VM DCR association has no valid DCR resource ID; refusing to guess during cleanup.'
     }
     if ([string]$state.associationName -notmatch '^[A-Za-z0-9-]{1,64}$') { throw 'The recorded VM DCR association name is invalid.' }
-    $accountJson = (& az account show --query '{tenantId:tenantId,id:id}' --output json --only-show-errors) -join [Environment]::NewLine
-    if ($LASTEXITCODE -ne 0) { throw 'Azure CLI could not inspect the active account before VM DCR cleanup.' }
+    $selectedSubscriptionId = Get-AzdSetting 'AZURE_SUBSCRIPTION_ID'
+    $selectedTenantId = Get-AzdSetting 'AZURE_TENANT_ID'
+    $guidPattern = '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+    if ($selectedSubscriptionId -notmatch $guidPattern -or $selectedTenantId -notmatch $guidPattern -or
+        $selectedSubscriptionId -ine [string]$state.azureSubscriptionId -or $selectedTenantId -ine [string]$state.azureTenantId) {
+        throw 'The selected environment subscription and tenant must match the VM deployment receipt before cleanup.'
+    }
+    if (([string]$state.dcrId -split '/')[2] -ine $selectedSubscriptionId) { throw 'The recorded DCR is outside the selected subscription.' }
+    foreach ($vmResourceId in $vmResourceIds) {
+        if ([string]$vmResourceId -notmatch '^/subscriptions/[^/]+/resourceGroups/[^/]+/providers/Microsoft\.Compute/virtualMachines/[^/]+$' -or
+            ([string]$vmResourceId -split '/')[2] -ine $selectedSubscriptionId) { throw 'A recorded VM is outside the selected subscription or has an invalid resource ID.' }
+    }
+    $accountJson = (& az account show --subscription $selectedSubscriptionId --query '{tenantId:tenantId,id:id,environmentName:environmentName}' --output json --only-show-errors) -join [Environment]::NewLine
+    if ($LASTEXITCODE -ne 0) { throw 'Azure CLI could not inspect the selected account before VM DCR cleanup.' }
     $account = $accountJson | ConvertFrom-Json
-    if ([string]$account.id -ine [string]$state.azureSubscriptionId -or [string]$account.tenantId -ine [string]$state.azureTenantId) {
+    if ([string]$account.environmentName -cne 'AzureCloud' -or [string]$account.id -ine [string]$state.azureSubscriptionId -or [string]$account.tenantId -ine [string]$state.azureTenantId) {
         throw 'Azure CLI is signed into a different subscription or tenant than the recorded azd-sysmon VM deployment.'
     }
     & (Join-Path $PSScriptRoot 'Associate-AzureVmDcr.ps1') -VmResourceIds $vmResourceIds -DcrId ([string]$state.dcrId) -AssociationName ([string]$state.associationName) -Action Remove

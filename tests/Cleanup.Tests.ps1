@@ -267,6 +267,8 @@ Set-Content -LiteralPath (Join-Path $PSScriptRoot 'client-ama-removed') -Value '
     }
 
     It 'removes the AZD-owned VM association even when tenant resources are preserved' {
+        $env:AZURE_SUBSCRIPTION_ID = '11111111-1111-4111-8111-111111111111'
+        $env:AZURE_TENANT_ID = '22222222-2222-4222-8222-222222222222'
         @'
 param(
     [string[]]$VmResourceIds,
@@ -281,7 +283,7 @@ param(
             param([Parameter(ValueFromRemainingArguments)][string[]]$Arguments)
             $global:LASTEXITCODE = 0
             if ($Arguments[0] -eq 'account' -and $Arguments[1] -eq 'show') {
-                return '{"id":"11111111-1111-4111-8111-111111111111","tenantId":"22222222-2222-4222-8222-222222222222"}'
+                return '{"id":"11111111-1111-4111-8111-111111111111","tenantId":"22222222-2222-4222-8222-222222222222","environmentName":"AzureCloud"}'
             }
             throw "Unexpected Azure CLI call: $($Arguments -join ' ')"
         }
