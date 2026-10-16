@@ -15,7 +15,7 @@ foreach ($vmId in $VmResourceIds) {
     if ($vmId -notmatch '^/subscriptions/[^/]+/resourceGroups/[^/]+/providers/Microsoft\.Compute/virtualMachines/[^/]+$') {
         throw "Invalid Azure VM resource ID: $vmId"
     }
-    $uri = "https://management.azure.com$vmId/providers/Microsoft.Insights/dataCollectionRuleAssociations/$AssociationName?api-version=2022-06-01"
+    $uri = "https://management.azure.com$vmId/providers/Microsoft.Insights/dataCollectionRuleAssociations/${AssociationName}?api-version=2022-06-01"
     if ($Action -eq 'Ensure') {
         $body = @{ properties = @{ dataCollectionRuleId = $DcrId } } | ConvertTo-Json -Compress -Depth 4
         Write-Host "Associating Sysmon DCR to $vmId"
