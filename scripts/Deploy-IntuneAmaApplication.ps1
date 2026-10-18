@@ -16,6 +16,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $templateRoot = Split-Path -Parent $PSScriptRoot
 . (Join-Path $PSScriptRoot 'Azd.Receipt.ps1')
+. (Join-Path $PSScriptRoot 'Ama.ComCleanup.ps1')
 if ([string]::IsNullOrWhiteSpace($ManifestPath)) { $ManifestPath = Join-Path $templateRoot 'config\ama-client-release.json' }
 if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) { throw "AMA release manifest was not found: $ManifestPath" }
 $release = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
@@ -28,24 +29,50 @@ $actualHash = (Get-FileHash -LiteralPath $MsiPath -Algorithm SHA256).Hash.ToLowe
 if ($actualHash -ne ([string]$release.sha256).ToLowerInvariant()) { throw 'Azure Monitor Agent package hash does not match the pinned release manifest.' }
 $signature = Get-AuthenticodeSignature -FilePath $MsiPath
 if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch ([string]$release.signerSubjectPattern)) { throw 'Azure Monitor Agent package does not have the expected valid Microsoft Authenticode signature.' }
-$installer = New-Object -ComObject WindowsInstaller.Installer
-$database = $installer.OpenDatabase($MsiPath, 0)
-foreach ($expected in @(
-    @{ Name = 'ProductCode'; Value = [string]$release.productCode },
-    @{ Name = 'ProductVersion'; Value = [string]$release.release },
-    @{ Name = 'Manufacturer'; Value = [string]$release.publisher }
-)) {
-    $view = $database.OpenView("SELECT ``Value`` FROM ``Property`` WHERE ``Property`` = '$($expected.Name)'")
-    $view.Execute() | Out-Null
-    $record = $view.Fetch()
-    $actual = if ($null -eq $record) { $null } else { [string]$record.StringData(1) }
-    if ($actual -ne $expected.Value) { throw "Azure Monitor Agent MSI $($expected.Name) does not match the pinned release manifest." }
+$installer = $database = $null
+$msiUpgradeCode = $null
+$primaryError = $null
+$releaseFailures = [Collections.Generic.List[Exception]]::new()
+try {
+    $installer = New-Object -ComObject WindowsInstaller.Installer
+    $database = $installer.OpenDatabase($MsiPath, 0)
+    foreach ($expected in @(
+        @{ Name = 'ProductCode'; Value = [string]$release.productCode },
+        @{ Name = 'ProductVersion'; Value = [string]$release.release },
+        @{ Name = 'Manufacturer'; Value = [string]$release.publisher }
+    )) {
+        $view = $record = $null
+        try {
+            $view = $database.OpenView("SELECT ``Value`` FROM ``Property`` WHERE ``Property`` = '$($expected.Name)'")
+            $view.Execute() | Out-Null
+            $record = $view.Fetch()
+            $actual = if ($null -eq $record) { $null } else { [string]$record.StringData(1) }
+            if ($actual -ne $expected.Value) { throw "Azure Monitor Agent MSI $($expected.Name) does not match the pinned release manifest." }
+        }
+        finally {
+            Add-AmaComReleaseFailure -InputObject $record -Failures $releaseFailures
+            Add-AmaComReleaseFailure -InputObject $view -Failures $releaseFailures -Close
+        }
+    }
+    $upgradeView = $upgradeRecord = $null
+    try {
+        $upgradeView = $database.OpenView("SELECT ``Value`` FROM ``Property`` WHERE ``Property`` = 'UpgradeCode'")
+        $upgradeView.Execute() | Out-Null
+        $upgradeRecord = $upgradeView.Fetch()
+        $msiUpgradeCode = if ($null -eq $upgradeRecord) { $null } else { [string]$upgradeRecord.StringData(1) }
+        if ($msiUpgradeCode -notmatch '^\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\}$') { throw 'Azure Monitor Agent MSI UpgradeCode is missing or invalid.' }
+    }
+    finally {
+        Add-AmaComReleaseFailure -InputObject $upgradeRecord -Failures $releaseFailures
+        Add-AmaComReleaseFailure -InputObject $upgradeView -Failures $releaseFailures -Close
+    }
 }
-$upgradeView = $database.OpenView("SELECT ``Value`` FROM ``Property`` WHERE ``Property`` = 'UpgradeCode'")
-$upgradeView.Execute() | Out-Null
-$upgradeRecord = $upgradeView.Fetch()
-$msiUpgradeCode = if ($null -eq $upgradeRecord) { $null } else { [string]$upgradeRecord.StringData(1) }
-if ($msiUpgradeCode -notmatch '^\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\}$') { throw 'Azure Monitor Agent MSI UpgradeCode is missing or invalid.' }
+catch { $primaryError = $_ }
+finally {
+    Add-AmaComReleaseFailure -InputObject $database -Failures $releaseFailures
+    Add-AmaComReleaseFailure -InputObject $installer -Failures $releaseFailures
+}
+Complete-AmaComCleanup -PrimaryError $primaryError -Failures $releaseFailures
 
 if (-not (Get-Module -ListAvailable -Name Microsoft.Graph.Authentication)) { throw 'Microsoft.Graph.Authentication is required. Install it with Install-Module Microsoft.Graph.Authentication -Scope CurrentUser.' }
 if ([string]::IsNullOrWhiteSpace($TenantId) -or [string]::IsNullOrWhiteSpace($ExpectedAccount)) { throw 'Set AZURE_TENANT_ID and AZD_SYSMON_GRAPH_ACCOUNT to the intended tenant GUID and administrator UPN before Intune publishing.' }
