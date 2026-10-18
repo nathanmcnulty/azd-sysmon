@@ -42,7 +42,7 @@ Describe 'Maintained management and test baseline' {
             Set-Content (Join-Path $moduleDirectory 'Pester.psm1') @'
 function Invoke-Pester {
     param($Path, [switch]$PassThru, $Output)
-    [pscustomobject]@{ FailedCount=0; FailedContainersCount=0; TotalCount=1; SkippedCount=0; NotRunCount=0 }
+    [pscustomobject]@{ Result='Passed'; FailedCount=0; FailedContainersCount=0; TotalCount=1; SkippedCount=0; InconclusiveCount=0; NotRunCount=0 }
 }
 Export-ModuleMember -Function Invoke-Pester
 '@

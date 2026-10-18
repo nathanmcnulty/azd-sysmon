@@ -788,6 +788,45 @@
       ],
       "blocker": null,
       "claim": null
+    },
+    {
+      "id": "SYS-024",
+      "title": "Reject inconclusive Pester outcomes in repository validation",
+      "kind": "maintenance",
+      "priority": "P1",
+      "status": "done",
+      "wave": 1,
+      "problem": "The maintained repository runner accepts a real inconclusive Pester result as successful validation because it checks failures and omissions but not the aggregate result or inconclusive count.",
+      "scope": [
+        "scripts/Test-Repository.ps1",
+        "tests/RepositoryOutcome.Tests.ps1",
+        "tests/helpers/Invoke-RepositoryOutcomeFixture.ps1",
+        "tests/RuntimeBaseline.Tests.ps1",
+        "docs/backlog.json",
+        "docs/backlog.md"
+      ],
+      "acceptance": [
+        "The actual maintained runner rejects a real inconclusive suite and continues to accept a real passing suite, using PowerShell 7.6+ and Pester 6.2.0.",
+        "Preserve the existing empty, failed, failed-container, skipped and not-run rejection checks and exact version-selection behavior.",
+        "Run ordinary offline repository validation and obtain independent review before commit and push; do not alter endpoint packages, permissions or native acceptance gates."
+      ],
+      "validation": [
+        "./scripts/Test-Repository.ps1 -PesterVersion 6.2.0",
+        "Run the actual copied runner in isolated PowerShell processes with real passing and inconclusive Pester suites; prove the test executed and retain the original false-success receipt outside Git.",
+        "Validate canonical backlog schema and generated Markdown, then review the exact final diff."
+      ],
+      "dependencies": [],
+      "authorization": "local-only",
+      "components": [],
+      "sources": [
+        "scripts/Test-Repository.ps1",
+        "https://github.com/nathanmcnulty/azd-sysmon/issues/18"
+      ],
+      "evidence": [
+        "2026-10-18: Current main 30fe2bc87be0d417151990a8714f81eb3ec5b84d accepted a real one-test inconclusive suite on PowerShell 7.6.6/Pester 6.2.0. The isolated receipt records fixture execution and succeeded=true. The new actual-runner passing/inconclusive cases and existing runtime baseline tests pass 8/8. Full ordinary validation passed 142/142 with zero failed, skipped, inconclusive or unexecuted tests, including static parsing, immutable component/package hashes and Bicep compilation. Independent source review approved the exact code and actual-runner regression; broader endpoint and native acceptance gates remain open. No Azure operations or endpoint installation occurred."
+      ],
+      "blocker": null,
+      "claim": null
     }
   ]
 }

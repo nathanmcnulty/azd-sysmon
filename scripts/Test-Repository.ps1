@@ -19,4 +19,4 @@ $root = Split-Path -Parent $PSScriptRoot
 if ($LASTEXITCODE -ne 0) { throw 'Static validation failed.' }
 & (Join-Path $root 'tests/Test-Package.ps1')
 $result = Invoke-Pester -Path (Join-Path $root 'tests') -PassThru -Output Detailed
-if ($null -eq $result -or $result.FailedCount -gt 0 -or $result.FailedContainersCount -gt 0 -or $result.TotalCount -eq 0 -or $result.SkippedCount -gt 0 -or $result.NotRunCount -gt 0) { throw 'Behavioral validation failed.' }
+if ($null -eq $result -or $result.Result -ne 'Passed' -or $result.FailedCount -gt 0 -or $result.FailedContainersCount -gt 0 -or $result.TotalCount -eq 0 -or $result.SkippedCount -gt 0 -or $result.InconclusiveCount -gt 0 -or $result.NotRunCount -gt 0) { throw 'Behavioral validation failed: every registered test must pass without skipped, inconclusive or unexecuted cases.' }
