@@ -8,6 +8,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $templateRoot = Split-Path -Parent $PSScriptRoot
+. (Join-Path $PSScriptRoot 'Ama.ComCleanup.ps1')
 if ([string]::IsNullOrWhiteSpace($ManifestPath)) { $ManifestPath = Join-Path $templateRoot 'config\ama-client-release.json' }
 if ([string]::IsNullOrWhiteSpace($OutputDirectory)) { $OutputDirectory = Join-Path $templateRoot '.artifacts\ama' }
 
@@ -23,19 +24,37 @@ function Assert-AmaMsi {
     if ($signature.Status -ne 'Valid' -or $signature.SignerCertificate.Subject -notmatch ([string]$Release.signerSubjectPattern)) {
         throw 'Azure Monitor Agent MSI does not have the expected valid Microsoft Authenticode signature.'
     }
-    $installer = New-Object -ComObject WindowsInstaller.Installer
-    $database = $installer.OpenDatabase($Path, 0)
-    foreach ($expected in @(
-        @{ Name = 'ProductCode'; Value = [string]$Release.productCode },
-        @{ Name = 'ProductVersion'; Value = [string]$Release.release },
-        @{ Name = 'Manufacturer'; Value = [string]$Release.publisher }
-    )) {
-        $view = $database.OpenView("SELECT ``Value`` FROM ``Property`` WHERE ``Property`` = '$($expected.Name)'")
-        $view.Execute() | Out-Null
-        $record = $view.Fetch()
-        $actual = if ($null -eq $record) { $null } else { [string]$record.StringData(1) }
-        if ($actual -ne $expected.Value) { throw "Azure Monitor Agent MSI $($expected.Name) does not match the pinned release manifest." }
+    $installer = $database = $null
+    $primaryError = $null
+    $releaseFailures = [Collections.Generic.List[Exception]]::new()
+    try {
+        $installer = New-Object -ComObject WindowsInstaller.Installer
+        $database = $installer.OpenDatabase($Path, 0)
+        foreach ($expected in @(
+            @{ Name = 'ProductCode'; Value = [string]$Release.productCode },
+            @{ Name = 'ProductVersion'; Value = [string]$Release.release },
+            @{ Name = 'Manufacturer'; Value = [string]$Release.publisher }
+        )) {
+            $view = $record = $null
+            try {
+                $view = $database.OpenView("SELECT ``Value`` FROM ``Property`` WHERE ``Property`` = '$($expected.Name)'")
+                $view.Execute() | Out-Null
+                $record = $view.Fetch()
+                $actual = if ($null -eq $record) { $null } else { [string]$record.StringData(1) }
+                if ($actual -ne $expected.Value) { throw "Azure Monitor Agent MSI $($expected.Name) does not match the pinned release manifest." }
+            }
+            finally {
+                Add-AmaComReleaseFailure -InputObject $record -Failures $releaseFailures
+                Add-AmaComReleaseFailure -InputObject $view -Failures $releaseFailures -Close
+            }
+        }
     }
+    catch { $primaryError = $_ }
+    finally {
+        Add-AmaComReleaseFailure -InputObject $database -Failures $releaseFailures
+        Add-AmaComReleaseFailure -InputObject $installer -Failures $releaseFailures
+    }
+    Complete-AmaComCleanup -PrimaryError $primaryError -Failures $releaseFailures
 }
 
 if (-not (Test-Path -LiteralPath $ManifestPath -PathType Leaf)) { throw "AMA release manifest was not found: $ManifestPath" }
