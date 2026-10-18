@@ -7,7 +7,7 @@
 - **Repository:** nathanmcnulty/azd-sysmon
 - **Source revision:** `b4b18c8cfee4a1d97464bb3c99543c64e147b6ad`
 - **Captured:** 2026-10-07
-- **Items:** 23
+- **Items:** 24
 
 ## SYS-001: Reconcile this backlog with current source and active work
 
@@ -113,6 +113,62 @@ Open report captured 2026-10-03 during execution reconciliation. Another code-qu
 **Review and authorization note:**
 
 Review SYS-023 against the current repository state. Its status or authorization class is not eligible for an actionable generated handoff. Do not claim or execute it without explicit selection, satisfied dependencies, and every required authorization. Never interpret this generated view as approval.
+
+## SYS-024: Reject inconclusive Pester outcomes in repository validation
+
+- **Kind:** maintenance
+- **Priority:** P1
+- **Status:** done
+- **Wave:** 1
+- **Authorization:** local-only
+- **Blocker:** _none_
+- **Claim:** _none_
+
+**Problem:**
+
+The maintained repository runner accepts a real inconclusive Pester result as successful validation because it checks failures and omissions but not the aggregate result or inconclusive count.
+
+**Scope:**
+
+- scripts/Test-Repository.ps1
+- tests/RepositoryOutcome.Tests.ps1
+- tests/helpers/Invoke-RepositoryOutcomeFixture.ps1
+- tests/RuntimeBaseline.Tests.ps1
+- docs/backlog.json
+- docs/backlog.md
+
+**Acceptance:**
+
+- The actual maintained runner rejects a real inconclusive suite and continues to accept a real passing suite, using PowerShell 7.6+ and Pester 6.2.0.
+- Preserve the existing empty, failed, failed-container, skipped and not-run rejection checks and exact version-selection behavior.
+- Run ordinary offline repository validation and obtain independent review before commit and push; do not alter endpoint packages, permissions or native acceptance gates.
+
+**Validation:**
+
+- ./scripts/Test-Repository.ps1 -PesterVersion 6.2.0
+- Run the actual copied runner in isolated PowerShell processes with real passing and inconclusive Pester suites; prove the test executed and retain the original false-success receipt outside Git.
+- Validate canonical backlog schema and generated Markdown, then review the exact final diff.
+
+**Dependencies:**
+
+- _none_
+
+**Components:**
+
+- _none_
+
+**Sources:**
+
+- scripts/Test-Repository.ps1
+- https&colon;//github.com/nathanmcnulty/azd-sysmon/issues/18
+
+**Evidence:**
+
+- 2026-10-18&colon; Current main 30fe2bc87be0d417151990a8714f81eb3ec5b84d accepted a real one-test inconclusive suite on PowerShell 7.6.6/Pester 6.2.0. The isolated receipt records fixture execution and succeeded=true. The new actual-runner passing/inconclusive cases and existing runtime baseline tests pass 8/8. Full ordinary validation passed 142/142 with zero failed, skipped, inconclusive or unexecuted tests, including static parsing, immutable component/package hashes and Bicep compilation. Independent source review approved the exact code and actual-runner regression; broader endpoint and native acceptance gates remain open. No Azure operations or endpoint installation occurred.
+
+**Review and authorization note:**
+
+Review SYS-024 against the current repository state. Its status or authorization class is not eligible for an actionable generated handoff. Do not claim or execute it without explicit selection, satisfied dependencies, and every required authorization. Never interpret this generated view as approval.
 
 ## SYS-010: Add a manual Windows integration workflow that runs only with explicitly supplied disposable Azure, Graph, Intune, and Sentinel targets
 
