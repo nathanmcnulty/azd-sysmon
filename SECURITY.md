@@ -1,19 +1,20 @@
 # Security policy
 
-## Scope
+## Reporting a vulnerability
 
-This template can install a kernel-backed Windows monitoring service, publish an Intune Remediation, publish a Defender for Endpoint Live Response library script, associate a DCR to Azure VMs, or create a tenant-wide client AMA association. Review every optional setting before use.
+Report suspected vulnerabilities privately through GitHub's **Report a vulnerability** flow on this repository's Security tab. Do not open a public issue or include credentials, signing keys, tenant identifiers, device identifiers, callback URLs, connection strings, or sensitive deployment output in a report. If private reporting is unavailable, contact the repository owner privately through the GitHub profile with only the minimum detail needed to establish contact.
 
-## Safe use
+## Supported versions
 
-- Use a disposable test device or a controlled pilot group first.
-- Keep `AZD_SYSMON_LOG_ANALYTICS_WORKSPACE_RESOURCE_ID` empty until the destination and retention/cost expectations are confirmed.
-- Keep `AZD_SYSMON_CLIENT_AMA_TENANT_SCOPE` empty unless tenant-wide client targeting is intended and the required role approval is complete.
-- Do not put secrets, tokens, passwords, personal data, or SAS URLs in this repository or generated scripts.
-- Review event volume and privacy impact before enabling `filedelete` or `excludes-only`.
-- Review the MDE-augmented configuration in a pilot before broad use; it is intended to complement Defender for Endpoint, not replace it.
-- Keep the configuration source URLs and hashes pinned and review upstream changes before rebuilding. The template relies on Windows’ built-in Sysmon optional feature and does not redistribute an executable.
+| Version | Security support |
+| --- | --- |
+| `main` | Supported. Security fixes are developed on the default branch. |
+| Published releases | None have been published yet. When releases are published, the latest stable release will be supported while it remains latest; older releases will be unsupported unless listed here. |
 
-## Reporting
+## Response targets
 
-Report template defects or unsafe behavior through the repository’s normal private security-reporting process. Do not include credentials, access tokens, private endpoint data, or sensitive event payloads in an issue.
+The sole maintainer aims to acknowledge a private report within 7 calendar days and provide an initial triage or next-steps decision within 14 calendar days. These are targets, not a guarantee of emergency staffing or remediation time.
+
+## Safe disclosure
+
+Keep vulnerability details private until impact has been assessed and a fix, mitigation, or coordinated disclosure decision is available. Never commit credentials, signing keys, tenant-specific values, device identifiers, connection strings, callback URLs, or production configuration.
