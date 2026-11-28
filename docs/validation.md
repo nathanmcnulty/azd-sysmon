@@ -1,5 +1,36 @@
 # Validation record
 
+## Clean Server 2025 probe, 16 October 2026
+
+A disposable commercial-lab VM used the exact Marketplace image
+`MicrosoftWindowsServer:WindowsServer:2025-datacenter-azure-edition-smalldisk:26100.33650.261013`.
+The read-only guest inventory confirmed built-in Sysmon was disabled and no
+Sysmon or AMA services existed. The VM interface had no public IP; its NSG was
+configured to deny inbound traffic and a NAT gateway supplied outbound access.
+
+Running `scripts/Deploy-AzureVmSysmon.ps1 -Configuration balanced` from revision
+`84d0f963d1ba53c90e257a8069006fe8871c7b49` failed during the first install.
+`Enable-BuiltInSysmon` emitted its status message and executable path on the
+success stream, so the caller attempted to invoke both as a command. The
+wrapper rejected the guest stderr and did not report a successful installation.
+
+The shared builder now writes status messages to the host stream. Regenerated
+Azure VM, Intune remediation and Live Response installers all preserve the single
+path return. Six offline tests execute their actual generated functions with
+disabled/enabled feature fixtures: all three disabled cases failed before the
+fix and all six cases pass afterward. The XML bundle and configuration hashes
+are unchanged.
+
+This trial did not prove the fixed install on a fresh native target, AMA
+installation, DCR association, ingestion or VM-preserving solution teardown.
+No reboot, tenant assignment, Graph grant, workspace or DCR was performed.
+The disposable resource group and managed-identity principal were verified
+absent after cleanup; the default CLI subscription remained unchanged.
+Private fixture, account, guest-result, source-hash and cleanup receipts remain
+outside Git. SYS-002 remains open for fresh native qualification.
+
+## Earlier client pilot
+
 The September 20, 2026 validation used a Windows 11 pilot device managed by
 Intune and an existing Microsoft Sentinel workspace. Tenant identifiers, device
 identifiers, authentication material, and deployment receipts remain outside the
